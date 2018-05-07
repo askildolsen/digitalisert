@@ -1,0 +1,21 @@
+﻿@using System.Collections.Generic
+@using digitalisert.Models
+@model IEnumerable<ResourceModel.Resource>
+
+@{
+    ViewData["Title"] = "Resource Page";
+}
+
+@foreach (var resource in Model)
+{
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">
+        <small class="text-muted">@resource.Code.FirstOrDefault()</small>
+        @resource.Title.FirstOrDefault()
+      </h5>
+      <h6 class="card-subtitle mb-2 text-muted"></h6>
+      <p class="card-text">@String.Join(",", @resource.Tags)</p>
+    </div>
+  </div>  
+}
