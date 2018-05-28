@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Raven.Client.Documents;
-using digitalisert.Models;
+using Digitalisert.Models;
 
-namespace digitalisert.Controllers
+namespace Digitalisert.Controllers
 {
     public class HomeController : Controller
     {
@@ -23,15 +23,15 @@ namespace digitalisert.Controllers
             return View();
         }
 
-        public IActionResult Resource()
+        public IActionResult Resource([FromQuery] Models.ResourceModel.Resource[] resources)
         {
             using(var session = _store.OpenSession())
             {
-                return View(session
-                    .Query<Models.ResourceModel.Resource, Models.ResourceModel.ResourceIndex>()
-                    //.Where(r => r.Title.Contains("Xangeli AS"))
-                    .Take(100)
-                    .ToList());
+                var query = session.Advanced.DocumentQuery<ResourceModel.Resource, ResourceModel.ResourceIndex>();
+
+                query = ResourceModel.QueryByExample(query, resources);
+
+                return View(query.Take(100).ToList());
             }
         }
 

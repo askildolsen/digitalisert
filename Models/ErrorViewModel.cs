@@ -1,6 +1,6 @@
 using System;
 
-namespace digitalisert.Models
+namespace Digitalisert.Models
 {
     public class ErrorViewModel
     {
