@@ -114,6 +114,10 @@ namespace Digitalisert.Models
                 {
                     query.WhereEquals("Tags", tags, exact: true);
                 }
+                foreach(var status in example.Status ?? new string[] { })
+                {
+                    query.WhereEquals("Status", status, exact: true);
+                }
 
                 foreach(var code in example.Code ?? new string[] { })
                 {
