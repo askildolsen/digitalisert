@@ -1,5 +1,6 @@
 using System;
 using Raven.Client.Documents;
+using Newtonsoft.Json;
 
 public class DocumentStoreHolder
 {
@@ -16,6 +17,7 @@ public class DocumentStoreHolder
 		};
 
 		store.Conventions.FindCollectionName = t => t.Name;
+		//store.Conventions.CustomizeJsonSerializer = s => s.NullValueHandling = NullValueHandling.Ignore;
 
 		return store.Initialize();
 	}
