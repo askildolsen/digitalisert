@@ -24,6 +24,7 @@ namespace Digitalisert.Models
             public IEnumerable<string> Status { get; set; }
             public IEnumerable<string> Tags { get; set; }
             public IEnumerable<Property> Properties { get; set; }
+            public IEnumerable<object> _ { get; set; }
         }
 
         public class Property
@@ -31,6 +32,7 @@ namespace Digitalisert.Models
             public string Name { get; set; }
             public IEnumerable<string> Value { get; set; }
             public IEnumerable<string> Tags { get; set; }
+            public IEnumerable<Resource> Resources { get; set; }
             public IEnumerable<Property> Properties { get; set; }
         }
 
@@ -43,6 +45,7 @@ namespace Digitalisert.Models
                 AddMap<Enhetsregisteret>(enheter =>
                     from e in enheter
                     let enhet = (IDictionary<string, string>)(object)e
+                    //where new[] { "Organisasjonsledd", "Staten"}.Contains(enhet["orgform.beskrivelse"])
                     select new Resource
                     {
                         ResourceId =  enhet["organisasjonsnummer"],
@@ -57,7 +60,20 @@ namespace Digitalisert.Models
                         Tags =
                             new[] {
                                 enhet["naeringskode1.beskrivelse"], enhet["naeringskode2.beskrivelse"], enhet["naeringskode3.beskrivelse"]
-                            }.Where(s => !String.IsNullOrEmpty(s))
+                            }.Where(s => !String.IsNullOrEmpty(s)),
+                        Properties = new[] {
+                            new Property
+                            {
+                                Name = "Postadresse",
+                                Value = new[] { enhet["postadresse.adresse"], enhet["postadresse.postnummer"] + " " + enhet["postadresse.poststed"] },
+                                Resources = new[] {
+                                    new Resource { Type = new[] { "Poststed" }, Code = new[] { enhet["postadresse.postnummer"] }, Title = new[] { enhet["postadresse.poststed"] } },
+                                    new Resource { Type = new[] { "Kommune" }, Code = new[] { enhet["postadresse.kommunenummer"] }, Title = new[] { enhet["postadresse.kommune"] } },
+                                    new Resource { Type = new[] { "Land" }, Code = new[] { enhet["postadresse.landkode"] }, Title = new[] { enhet["postadresse.land"] } }
+                                }
+                            }
+                        }.Where(p => p.Value.Any(v => !String.IsNullOrWhiteSpace(v))),
+                        _ = new object[] { }
                     }
                 );
 
@@ -72,16 +88,23 @@ namespace Digitalisert.Models
                         Title = g.SelectMany(resource => resource.Title),
                         Code = g.SelectMany(resource => resource.Code),
                         Status = g.SelectMany(resource => resource.Status),
-                        Tags = g.SelectMany(resource => resource.Tags)
+                        Tags = g.SelectMany(resource => resource.Tags),
+                        Properties = g.SelectMany(resource => resource.Properties),
+                        _ =
+                            from p in g.SelectMany(resource => resource.Properties)
+                            select CreateField(p.Name, p.Value)
                     };
 
-                Index(x => x.Type, FieldIndexing.Exact);
-                Index(x => x.SubType, FieldIndexing.Exact);
-                Index(x => x.Code, FieldIndexing.Exact);
-                Index(x => x.Status, FieldIndexing.Exact);
-                Index(x => x.Tags, FieldIndexing.Exact);
+                Index(r => r.Type, FieldIndexing.Exact);
+                Index(r => r.SubType, FieldIndexing.Exact);
+                Index(r => r.Code, FieldIndexing.Exact);
+                Index(r => r.Status, FieldIndexing.Exact);
+                Index(r => r.Tags, FieldIndexing.Exact);
 
-                Index(x => x.Title, FieldIndexing.Search);
+                Index(r => r.Title, FieldIndexing.Search);
+
+                Index(r => r.Properties, FieldIndexing.No);
+                Store(r => r.Properties, FieldStorage.Yes);
 
                 Analyzers.Add(x => x.Title, "SimpleAnalyzer");
             }
