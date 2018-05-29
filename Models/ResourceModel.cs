@@ -91,8 +91,15 @@ namespace Digitalisert.Models
                         Tags = g.SelectMany(resource => resource.Tags),
                         Properties = g.SelectMany(resource => resource.Properties),
                         _ =
-                            from p in g.SelectMany(resource => resource.Properties)
-                            select CreateField(p.Name, p.Value)
+                            (
+                                from p in g.SelectMany(resource => resource.Properties)
+                                select CreateField(p.Name, p.Value)
+                            ).Union (
+                                from p in g.SelectMany(resource => resource.Properties)
+                                from r in p.Resources
+                                from type in r.Type
+                                select CreateField(p.Name + "_" + type + "_Code", r.Code)
+                            )
                     };
 
                 Index(r => r.Type, FieldIndexing.Exact);
@@ -159,6 +166,17 @@ namespace Digitalisert.Models
                     foreach(var value in property.Value ?? new string[] { })
                     {
                         query.WhereEquals(property.Name, value, false);
+                    }
+
+                    foreach(var resource in property.Resources ?? new Resource[] { })
+                    {
+                        foreach(var type in resource.Type ?? new string[] { })
+                        {
+                            foreach(var code in resource.Code ?? new string[] { })
+                            {
+                                query.WhereEquals(property.Name + "_" + type + "_Code", code);
+                            }
+                        }
                     }
                 }
 
