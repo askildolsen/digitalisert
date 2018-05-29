@@ -154,6 +154,14 @@ namespace Digitalisert.Models
                     }
                 }
 
+                foreach(var property in example.Properties ?? new Property[] { })
+                {
+                    foreach(var value in property.Value ?? new string[] { })
+                    {
+                        query.WhereEquals(property.Name, value, false);
+                    }
+                }
+
                 foreach(var title in example.Title ?? new string[] { })
                 {
                     query.Search("Title", title, Raven.Client.Documents.Queries.SearchOperator.And);
