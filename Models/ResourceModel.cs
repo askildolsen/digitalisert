@@ -21,6 +21,7 @@ namespace Digitalisert.Models
             public IEnumerable<string> Title { get; set; }
             public IEnumerable<string> SubTitle { get; set; }
             public IEnumerable<string> Code { get; set; }
+            public IEnumerable<string> Body { get; set; }
             public IEnumerable<string> Status { get; set; }
             public IEnumerable<string> Tags { get; set; }
             public IEnumerable<Property> Properties { get; set; }
@@ -50,7 +51,9 @@ namespace Digitalisert.Models
                         Type = enhet.Type,
                         SubType = enhet.SubType,
                         Title = enhet.Title,
+                        SubTitle = enhet.SubTitle,
                         Code = enhet.Code,
+                        Body = enhet.Body,
                         Status = enhet.Status,
                         Tags = enhet.Tags,
                         Properties = enhet.Properties,
@@ -67,7 +70,9 @@ namespace Digitalisert.Models
                         Type = g.SelectMany(resource => resource.Type),
                         SubType = g.SelectMany(resource => resource.SubType),
                         Title = g.SelectMany(resource => resource.Title),
+                        SubTitle = g.SelectMany(resource => resource.SubTitle),
                         Code = g.SelectMany(resource => resource.Code),
+                        Body = g.SelectMany(resource => resource.Body),
                         Status = g.SelectMany(resource => resource.Status),
                         Tags = g.SelectMany(resource => resource.Tags),
                         Properties = g.SelectMany(resource => resource.Properties),
@@ -90,11 +95,15 @@ namespace Digitalisert.Models
                 Index(r => r.Tags, FieldIndexing.Exact);
 
                 Index(r => r.Title, FieldIndexing.Search);
+                Index(r => r.SubTitle, FieldIndexing.Search);
+                Index(r => r.Body, FieldIndexing.Search);
 
                 Index(r => r.Properties, FieldIndexing.No);
                 Store(r => r.Properties, FieldStorage.Yes);
 
                 Analyzers.Add(x => x.Title, "SimpleAnalyzer");
+                Analyzers.Add(x => x.SubTitle, "SimpleAnalyzer");
+                Analyzers.Add(x => x.Body, "SimpleAnalyzer");
             }
         }
 
@@ -164,6 +173,16 @@ namespace Digitalisert.Models
                 foreach(var title in example.Title ?? new string[] { })
                 {
                     query.Search("Title", title, Raven.Client.Documents.Queries.SearchOperator.And);
+                }
+
+                foreach(var subTitle in example.SubTitle ?? new string[] { })
+                {
+                    query.Search("SubTitle", subTitle, Raven.Client.Documents.Queries.SearchOperator.And);
+                }
+
+                foreach(var body in example.Body ?? new string[] { })
+                {
+                    query.Search("Body", body, Raven.Client.Documents.Queries.SearchOperator.And);
                 }
 
                 query.CloseSubclause();
