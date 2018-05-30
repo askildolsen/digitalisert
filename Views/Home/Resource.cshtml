@@ -9,13 +9,22 @@
 @foreach (var resource in Model)
 {
   <div class="card">
+    <h5 class="card-header">
+      @String.Join(", ", @resource.Type)
+      <small class="">@String.Join(", ", @resource.SubType)</small>
+    </h5>
     <div class="card-body">
       <h5 class="card-title">
         <small class="text-muted">@resource.Code.FirstOrDefault()</small>
         @resource.Title.FirstOrDefault()
       </h5>
-      <h6 class="card-subtitle mb-2 text-muted"></h6>
-      <p class="card-text">@String.Join(",", @resource.Tags)</p>
+      <h6 class="card-subtitle mb-2 text-muted">@resource.SubTitle.FirstOrDefault()</h6>
+      @foreach(var body in resource.Body)
+      {
+        <p class="card-text">@String.Join(",", @body)</p>
+      }
     </div>
-  </div>  
+    <div class="card-footer">@String.Join(",", @resource.Tags)</div>
+  </div>
+  <br>
 }
