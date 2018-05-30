@@ -38,15 +38,26 @@ namespace Digitalisert.Models
 
         public class ResourceIndex : AbstractMultiMapIndexCreationTask<Resource>
         {
-            public class Enhetsregisteret { }
+            public class EnhetsregisteretResource : Resource { }
 
             public ResourceIndex()
             {
-                AddMap<Enhetsregisteret>(enheter =>
-                    from e in enheter
-                    let enhet = (IDictionary<string, string>)(object)e
-                    //where new[] { "Organisasjonsledd", "Staten"}.Contains(enhet["orgform.beskrivelse"])
+                AddMap<EnhetsregisteretResource>(enheter =>
+                    from enhet in enheter
                     select new Resource
+                    {
+                        ResourceId = enhet.ResourceId,
+                        Type = enhet.Type,
+                        SubType = enhet.SubType,
+                        Title = enhet.Title,
+                        Code = enhet.Code,
+                        Status = enhet.Status,
+                        Tags = enhet.Tags,
+                        Properties = enhet.Properties,
+                        _ = new object[] { }
+                    }
+                    //where new[] { "Organisasjonsledd", "Staten"}.Contains(enhet["orgform.beskrivelse"])
+                    /*select new Resource
                     {
                         ResourceId =  enhet["organisasjonsnummer"],
                         Type = new[] { enhet["orgform.beskrivelse"] },
@@ -74,7 +85,7 @@ namespace Digitalisert.Models
                             }
                         }.Where(p => p.Value.Any(v => !String.IsNullOrWhiteSpace(v))),
                         _ = new object[] { }
-                    }
+                    }*/
                 );
 
                 Reduce = results  =>
