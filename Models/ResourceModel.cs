@@ -56,36 +56,6 @@ namespace Digitalisert.Models
                         Properties = enhet.Properties,
                         _ = new object[] { }
                     }
-                    //where new[] { "Organisasjonsledd", "Staten"}.Contains(enhet["orgform.beskrivelse"])
-                    /*select new Resource
-                    {
-                        ResourceId =  enhet["organisasjonsnummer"],
-                        Type = new[] { enhet["orgform.beskrivelse"] },
-                        SubType = new [] { enhet["institusjonellSektorkode.beskrivelse"] }.Where(s => !String.IsNullOrEmpty(s)),
-                        Title = new[] { enhet["navn"] },
-                        Code =  new[] { enhet["organisasjonsnummer"] },
-                        Status = 
-                            from status in new[] { "konkurs", "underAvvikling", "underTvangsavviklingEllerTvangsopplosning" }
-                            where enhet[status] == "J"
-                            select status,
-                        Tags =
-                            new[] {
-                                enhet["naeringskode1.beskrivelse"], enhet["naeringskode2.beskrivelse"], enhet["naeringskode3.beskrivelse"]
-                            }.Where(s => !String.IsNullOrEmpty(s)),
-                        Properties = new[] {
-                            new Property
-                            {
-                                Name = "Postadresse",
-                                Value = new[] { enhet["postadresse.adresse"], enhet["postadresse.postnummer"] + " " + enhet["postadresse.poststed"] },
-                                Resources = new[] {
-                                    new Resource { Type = new[] { "Poststed" }, Code = new[] { enhet["postadresse.postnummer"] }, Title = new[] { enhet["postadresse.poststed"] } },
-                                    new Resource { Type = new[] { "Kommune" }, Code = new[] { enhet["postadresse.kommunenummer"] }, Title = new[] { enhet["postadresse.kommune"] } },
-                                    new Resource { Type = new[] { "Land" }, Code = new[] { enhet["postadresse.landkode"] }, Title = new[] { enhet["postadresse.land"] } }
-                                }
-                            }
-                        }.Where(p => p.Value.Any(v => !String.IsNullOrWhiteSpace(v))),
-                        _ = new object[] { }
-                    }*/
                 );
 
                 Reduce = results  =>
