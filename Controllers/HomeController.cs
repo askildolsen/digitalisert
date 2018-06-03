@@ -35,6 +35,18 @@ namespace Digitalisert.Controllers
             }
         }
 
+        public IActionResult Facet([FromQuery] Models.ResourceModel.Resource[] resources)
+        {
+            using(var session = _store.OpenSession())
+            {
+                var query = session.Advanced.DocumentQuery<ResourceModel.Resource, ResourceModel.ResourceIndex>();
+
+                query = ResourceModel.QueryByExample(query, resources);
+
+                return View(query.AggregateBy(ResourceModel.Facets).Execute());
+            }
+        }
+
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
