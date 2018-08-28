@@ -122,32 +122,30 @@ namespace Digitalisert.Models
                 query.OrElse();
                 query.OpenSubclause();
 
-                foreach(var type in example.Type ?? new string[] { })
-                {
-                    query.WhereEquals("Type", type, exact: true);
-                }
-                foreach(var subType in example.SubType ?? new string[] { })
-                {
-                    query.WhereEquals("SubType", subType, exact: true);
-                }
-                foreach(var tags in example.Tags ?? new string[] { })
-                {
-                    query.WhereEquals("Tags", tags, exact: true);
-                }
-                foreach(var status in example.Status ?? new string[] { })
-                {
-                    query.WhereEquals("Status", status, exact: true);
-                }
+                var fields = new[] {
+                    new { Name = "Type", Values = example.Type },
+                    new { Name = "SubType", Values = example.SubType },
+                    new { Name = "Code", Values = example.Code },
+                    new { Name = "Status", Values = example.Status },
+                    new { Name = "Tags", Values = example.Tags },
+                };
 
-                foreach(var code in example.Code ?? new string[] { })
+                foreach(var field in fields)
                 {
-                    if (code.EndsWith("*"))
+                    foreach (var value in field.Values ?? new string[] { })
                     {
-                        query.WhereStartsWith("Code", code.TrimEnd('*'));
-                    }
-                    else
-                    {
-                        query.WhereEquals("Code", code, exact: true);
+                        if (value.StartsWith("-"))
+                        {
+                            query.WhereNotEquals(field.Name, value.TrimStart('-'));
+                        }
+                        else if (value.EndsWith("*"))
+                        {
+                            query.WhereStartsWith(field.Name, value.TrimEnd('*'));
+                        }
+                        else
+                        {
+                            query.WhereEquals(field.Name, value, exact: true);
+                        }
                     }
                 }
 
