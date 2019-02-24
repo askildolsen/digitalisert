@@ -15,6 +15,7 @@ namespace Digitalisert.Models
         public class Resource
         {
             public Resource() { }
+            public string Context { get; set; }
             public string ResourceId { get; set; }
             public IEnumerable<string> Type { get; set; }
             public IEnumerable<string> SubType { get; set; }
@@ -24,6 +25,7 @@ namespace Digitalisert.Models
             public IEnumerable<string> Body { get; set; }
             public IEnumerable<string> Status { get; set; }
             public IEnumerable<string> Tags { get; set; }
+            public IEnumerable<string[]> Classification { get; set; }
             public IEnumerable<Property> Properties { get; set; }
             public IEnumerable<object> _ { get; set; }
         }
@@ -39,14 +41,15 @@ namespace Digitalisert.Models
 
         public class ResourceIndex : AbstractMultiMapIndexCreationTask<Resource>
         {
-            public class EnhetsregisteretResource : Resource { }
+            public class EnheterResource : Resource { }
 
             public ResourceIndex()
             {
-                AddMap<EnhetsregisteretResource>(enheter =>
+                AddMap<EnheterResource>(enheter =>
                     from enhet in enheter
                     select new Resource
                     {
+                        Context = "Enheter",
                         ResourceId = enhet.ResourceId,
                         Type = enhet.Type,
                         SubType = enhet.SubType,
@@ -56,6 +59,7 @@ namespace Digitalisert.Models
                         Body = enhet.Body,
                         Status = enhet.Status,
                         Tags = enhet.Tags,
+                        Classification = enhet.Classification,
                         Properties = enhet.Properties,
                         _ = new object[] { }
                     }
@@ -63,10 +67,11 @@ namespace Digitalisert.Models
 
                 Reduce = results  =>
                     from result in results
-                    group result by result.ResourceId into g
+                    group result by new { result.Context, result.ResourceId } into g
                     select new Resource
                     {
-                        ResourceId = g.Key,
+                        Context = g.Key.Context,
+                        ResourceId = g.Key.ResourceId,
                         Type = g.SelectMany(resource => resource.Type),
                         SubType = g.SelectMany(resource => resource.SubType),
                         Title = g.SelectMany(resource => resource.Title),
@@ -75,6 +80,7 @@ namespace Digitalisert.Models
                         Body = g.SelectMany(resource => resource.Body),
                         Status = g.SelectMany(resource => resource.Status),
                         Tags = g.SelectMany(resource => resource.Tags),
+                        Classification = g.SelectMany(resource => resource.Classification),
                         Properties = g.SelectMany(resource => resource.Properties),
                         _ =
                             (
@@ -88,11 +94,13 @@ namespace Digitalisert.Models
                             )
                     };
 
+                Index(r => r.Context, FieldIndexing.Exact);
                 Index(r => r.Type, FieldIndexing.Exact);
                 Index(r => r.SubType, FieldIndexing.Exact);
                 Index(r => r.Code, FieldIndexing.Exact);
                 Index(r => r.Status, FieldIndexing.Exact);
                 Index(r => r.Tags, FieldIndexing.Exact);
+                Index(r => r.Classification, FieldIndexing.Exact);
 
                 Index(r => r.Title, FieldIndexing.Search);
                 Index(r => r.SubTitle, FieldIndexing.Search);
@@ -109,10 +117,12 @@ namespace Digitalisert.Models
 
         public static List<Facet> Facets = new List<Facet>
         {
+            new Facet { FieldName = "Context" },
             new Facet { FieldName = "Type" },
             new Facet { FieldName = "SubType" },
             new Facet { FieldName = "Tags" },
-            new Facet { FieldName = "Status" }
+            new Facet { FieldName = "Status" },
+            new Facet { FieldName = "Classification" }
         };
 
         public static IDocumentQuery<Resource> QueryByExample(IDocumentQuery<Resource> query, IEnumerable<Resource> examples)
@@ -123,11 +133,13 @@ namespace Digitalisert.Models
                 query.OpenSubclause();
 
                 var fields = new[] {
+                    new { Name = "Context", Values = Enumerable.Repeat(example.Context, 1) },
                     new { Name = "Type", Values = example.Type },
                     new { Name = "SubType", Values = example.SubType },
                     new { Name = "Code", Values = example.Code },
                     new { Name = "Status", Values = example.Status },
                     new { Name = "Tags", Values = example.Tags },
+                    new { Name = "Classification", Values = example.Classification.SelectMany(c => c) }
                 };
 
                 foreach(var field in fields)
