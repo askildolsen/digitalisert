@@ -35,6 +35,20 @@ namespace Digitalisert.Controllers
             }
         }
 
+        [Route("Home/Resource/{context}/{*id}")]
+        public IActionResult Resource(string context, string id)
+        {
+            using(var session = _store.OpenSession())
+            {
+                var query = session
+                    .Query<ResourceModel.Resource, ResourceModel.ResourceIndex>()
+                    .Include<ResourceModel.Resource>(r => r.Properties.SelectMany(p => p.Resources).Select(re => re.Target))
+                    .Where(r => r.Context == context && r.ResourceId == id);
+
+                return View(ResourceModel.LoadTargets(query, session).ToList());
+            }
+        }
+
         public IActionResult Facet([FromQuery] Models.ResourceModel.Resource[] resources)
         {
             using(var session = _store.OpenSession())

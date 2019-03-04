@@ -33,6 +33,23 @@ namespace Digitalisert.Controllers
             }
         }
 
+        [HttpGet("{context}/{*id}")]
+        public IEnumerable<object> Resource(string context, string id)
+        {
+            using(var session = _store.OpenSession())
+            {
+                var query = session
+                    .Query<ResourceModel.Resource, ResourceModel.ResourceIndex>()
+                    .Include<ResourceModel.Resource>(r => r.Properties.SelectMany(p => p.Resources).Select(re => re.Target))
+                    .Where(r => r.Context == context && r.ResourceId == id);
+
+                foreach(var resource in ResourceModel.LoadTargets(query, session))
+                {
+                    yield return resource;
+                }
+            }
+        }
+
         [HttpGet("Facet")]
         public Dictionary<string, FacetResult> Facet([FromQuery] Models.ResourceModel.Resource[] resources)
         {

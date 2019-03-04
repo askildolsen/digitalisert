@@ -37,6 +37,10 @@ namespace Digitalisert.Models
             public IEnumerable<string> Tags { get; set; }
             public IEnumerable<Resource> Resources { get; set; }
             public IEnumerable<Property> Properties { get; set; }
+
+            public class Resource : ResourceModel.Resource {
+                public string Target { get; set; }
+            }
         }
 
         public class ResourceIndex : AbstractMultiMapIndexCreationTask<Resource>
@@ -168,7 +172,7 @@ namespace Digitalisert.Models
                         query.WhereEquals(property.Name, value, false);
                     }
 
-                    foreach(var resource in property.Resources ?? new Resource[] { })
+                    foreach(var resource in property.Resources ?? new Property.Resource[] { })
                     {
                         foreach(var type in resource.Type ?? new string[] { })
                         {
@@ -199,6 +203,20 @@ namespace Digitalisert.Models
             }
 
             return query;
+        }
+
+
+        public static IEnumerable<ResourceModel.Resource> LoadTargets(IQueryable<ResourceModel.Resource> query, Raven.Client.Documents.Session.IDocumentSession session)
+        {
+            foreach(var resource in query)
+            {
+                foreach(var property in resource.Properties.Where(p => p.Resources.Any(r => r.Target != null)))
+                {
+                    property.Resources = property.Resources.Select(r => session.Load<ResourceModel.Property.Resource>(r.Target));
+                }
+
+                yield return resource;
+            }
         }
     }
 }
