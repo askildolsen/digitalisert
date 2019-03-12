@@ -137,13 +137,13 @@ namespace Digitalisert.Models
                 query.OpenSubclause();
 
                 var fields = new[] {
-                    new { Name = "Context", Values = Enumerable.Repeat(example.Context, 1) },
+                    new { Name = "Context", Values = Enumerable.Repeat(example.Context, 1).Where(v => v != null) },
                     new { Name = "Type", Values = example.Type },
                     new { Name = "SubType", Values = example.SubType },
                     new { Name = "Code", Values = example.Code },
                     new { Name = "Status", Values = example.Status },
                     new { Name = "Tags", Values = example.Tags },
-                    new { Name = "Classification", Values = example.Classification.SelectMany(c => c) }
+                    new { Name = "Classification", Values = (example.Classification ?? new string[][] {}).SelectMany(c => c) }
                 };
 
                 foreach(var field in fields)
