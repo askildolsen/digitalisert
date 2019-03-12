@@ -23,6 +23,33 @@
       {
         <p class="card-text">@String.Join(",", @body)</p>
       }
+      <dl>
+        @foreach (var property in resource.Properties.Where(p => (p.Value ?? new string[] { }).Any() || p.Resources.Any(r => (r.Code ?? new string[] {}).Any())))
+        {
+            <dt>@property.Name</dt>
+            <dd>
+              @foreach (var value in property.Value ?? new string[] { })
+              {
+                <span>@value</span>
+              }
+              @foreach (var propertyresource in property.Resources)
+              {
+                if (propertyresource.ResourceId != null)
+                {
+                  <a href="/Home/Resource/@(resource.Context)/@propertyresource.ResourceId">
+                    <small>@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
+                    <span>@((propertyresource.Title ?? new string[] { }).FirstOrDefault())</span>                   
+                  </a>
+                }
+                else
+                {
+                  <small>@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
+                  <span>@((propertyresource.Title ?? new string[] { }).FirstOrDefault())</span>
+                }
+              }
+            </dd>
+        }
+      </dl>
     </div>
     <div class="card-footer">@String.Join(",", @resource.Tags)</div>
   </div>
