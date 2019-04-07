@@ -52,7 +52,7 @@
         }
       </dl>
     </div>
-    <div class="card-footer">@String.Join(", ", @resource.Tags)</div>
+    <div class="card-footer">@String.Join(", ", @resource.Tags ?? new string[] { })</div>
   </div>
   <br>
 }

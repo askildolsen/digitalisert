@@ -27,6 +27,7 @@ namespace Digitalisert.Models
             public IEnumerable<string> Tags { get; set; }
             public IEnumerable<string[]> Classification { get; set; }
             public IEnumerable<Property> Properties { get; set; }
+            public IEnumerable<string> Source { get; set; }
             public IEnumerable<object> _ { get; set; }
         }
 
@@ -45,29 +46,28 @@ namespace Digitalisert.Models
 
         public class ResourceIndex : AbstractMultiMapIndexCreationTask<Resource>
         {
-            public class EnheterResource : Resource { }
-            public class FactbookResource : Resource { }
-
             public ResourceIndex()
             {
-                AddMap<EnheterResource>(enheter =>
-                    from enhet in enheter
+                AddMap<Resource>(resources =>
+                    from resource in resources
+                    from source in resource.Source.Select(s => LoadDocument<Resource>(s)).Where(s => s != null)
+                    let properties = resource.Properties.Union(source.Properties)
                     select new Resource
                     {
-                        Context = "Enheter",
-                        ResourceId = enhet.ResourceId,
-                        Type = enhet.Type,
-                        SubType = enhet.SubType,
-                        Title = enhet.Title,
-                        SubTitle = enhet.SubTitle,
-                        Code = enhet.Code,
-                        Body = enhet.Body,
-                        Status = enhet.Status,
-                        Tags = enhet.Tags,
-                        Classification = enhet.Classification,
-                        Properties = enhet.Properties,
+                        Context = resource.Context,
+                        ResourceId = resource.ResourceId,
+                        Type = source.Type,
+                        SubType = source.SubType,
+                        Title = source.Title,
+                        SubTitle = source.SubTitle,
+                        Code = source.Code,
+                        Body = source.Body,
+                        Status = source.Status,
+                        Tags = source.Tags,
+                        Classification = source.Classification,
+                        Properties = properties,
                         _ = (
-                            from p in enhet.Properties
+                            from p in properties
                             let values = (
                                 from r in p.Resources.Select(re => (re.Target != null) ? LoadDocument<Resource>(re.Target) : re)
                                 from v in r.Code.Union(r.Title)
