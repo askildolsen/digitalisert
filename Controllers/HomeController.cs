@@ -31,7 +31,7 @@ namespace Digitalisert.Controllers
 
                 query = ResourceModel.QueryByExample(query, resources);
 
-                return View(query.Take(100).ToList());
+                return View(query.ToQueryable().ProjectInto<ResourceModel.Resource>().Take(100).ToList());
             }
         }
 
@@ -45,7 +45,7 @@ namespace Digitalisert.Controllers
                     .Include<ResourceModel.Resource>(r => r.Properties.SelectMany(p => p.Resources).Select(re => re.Target))
                     .Where(r => r.Context == context && r.ResourceId == id);
 
-                return View(ResourceModel.LoadTargets(query, session).ToList());
+                return View(ResourceModel.LoadTargets(query.ProjectInto<ResourceModel.Resource>(), session).ToList());
             }
         }
 

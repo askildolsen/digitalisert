@@ -46,6 +46,7 @@ namespace Digitalisert.Models
         public class ResourceIndex : AbstractMultiMapIndexCreationTask<Resource>
         {
             public class EnheterResource : Resource { }
+            public class FactbookResource : Resource { }
 
             public ResourceIndex()
             {
@@ -65,38 +66,20 @@ namespace Digitalisert.Models
                         Tags = enhet.Tags,
                         Classification = enhet.Classification,
                         Properties = enhet.Properties,
-                        _ = new object[] { }
+                        _ = (
+                            from p in enhet.Properties
+                            let values = (
+                                from r in p.Resources.Select(re => (re.Target != null) ? LoadDocument<Resource>(re.Target) : re)
+                                from v in r.Code.Union(r.Title)
+                                select v
+                            ).Union(
+                                p.Value
+                            )
+                            where values.Any()
+                            select CreateField(p.Name, values.Distinct())
+                        )
                     }
                 );
-
-                Reduce = results  =>
-                    from result in results
-                    group result by new { result.Context, result.ResourceId } into g
-                    select new Resource
-                    {
-                        Context = g.Key.Context,
-                        ResourceId = g.Key.ResourceId,
-                        Type = g.SelectMany(resource => resource.Type),
-                        SubType = g.SelectMany(resource => resource.SubType),
-                        Title = g.SelectMany(resource => resource.Title),
-                        SubTitle = g.SelectMany(resource => resource.SubTitle),
-                        Code = g.SelectMany(resource => resource.Code),
-                        Body = g.SelectMany(resource => resource.Body),
-                        Status = g.SelectMany(resource => resource.Status),
-                        Tags = g.SelectMany(resource => resource.Tags),
-                        Classification = g.SelectMany(resource => resource.Classification),
-                        Properties = g.SelectMany(resource => resource.Properties),
-                        _ =
-                            (
-                                from p in g.SelectMany(resource => resource.Properties)
-                                select CreateField(p.Name, p.Value)
-                            ).Union (
-                                from p in g.SelectMany(resource => resource.Properties)
-                                from r in p.Resources
-                                from type in r.Type
-                                select CreateField(p.Name + "_" + type + "_Code", r.Code)
-                            )
-                    };
 
                 Index(r => r.Context, FieldIndexing.Exact);
                 Index(r => r.Type, FieldIndexing.Exact);
@@ -105,17 +88,34 @@ namespace Digitalisert.Models
                 Index(r => r.Status, FieldIndexing.Exact);
                 Index(r => r.Tags, FieldIndexing.Exact);
                 Index(r => r.Classification, FieldIndexing.Exact);
+                Index(r => r.Properties, FieldIndexing.No);
 
                 Index(r => r.Title, FieldIndexing.Search);
                 Index(r => r.SubTitle, FieldIndexing.Search);
                 Index(r => r.Body, FieldIndexing.Search);
 
-                Index(r => r.Properties, FieldIndexing.No);
+                Store(r => r.Context, FieldStorage.Yes);
+                Store(r => r.Type, FieldStorage.Yes);
+                Store(r => r.SubType, FieldStorage.Yes);
+                Store(r => r.Title, FieldStorage.Yes);
+                Store(r => r.SubTitle, FieldStorage.Yes);
+                Store(r => r.Code, FieldStorage.Yes);
+                Store(r => r.Status, FieldStorage.Yes);
+                Store(r => r.Tags, FieldStorage.Yes);
+                Store(r => r.Classification, FieldStorage.Yes);
                 Store(r => r.Properties, FieldStorage.Yes);
 
                 Analyzers.Add(x => x.Title, "SimpleAnalyzer");
                 Analyzers.Add(x => x.SubTitle, "SimpleAnalyzer");
                 Analyzers.Add(x => x.Body, "SimpleAnalyzer");
+            }
+
+            public override IndexDefinition CreateIndexDefinition()
+            {
+                var indexDefinition = base.CreateIndexDefinition();
+                indexDefinition.Configuration = new IndexConfiguration { { "Indexing.MapTimeoutInSec", "60"} };
+
+                return indexDefinition;
             }
         }
 
