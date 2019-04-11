@@ -68,15 +68,15 @@ namespace Digitalisert.Models
                         Properties = properties,
                         _ = (
                             from p in properties
-                            let values = (
-                                from r in p.Resources.Select(re => (re.Target != null) ? LoadDocument<Resource>(re.Target) : re)
-                                from v in r.Code.Union(r.Title)
-                                select v
-                            ).Union(
-                                p.Value
+                            group p by p.Name into pg
+                            select CreateField(
+                                pg.Key,
+                                pg.SelectMany(pv => pv.Value).Union(
+                                    from r in pg.SelectMany(pr => pr.Resources)
+                                    from v in r.Code.Union(r.Title).Union(new string[] { r.ResourceId})
+                                    select v
+                                ).Distinct()
                             )
-                            where values.Any()
-                            select CreateField(p.Name, values.Distinct())
                         )
                     }
                 );
