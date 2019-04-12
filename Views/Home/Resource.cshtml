@@ -11,7 +11,7 @@
   <div class="card">
     <h5 class="card-header">
       @String.Join(", ", @resource.Type)
-      <small class="">@String.Join(", ", @resource.SubType)</small>
+      <small class="">@String.Join(", ", @resource.SubType ?? new string[] { })</small>
     </h5>
     <div class="card-body">
       <h5 class="card-title position-relative">
@@ -33,19 +33,22 @@
               {
                 <span>@value</span>
               }
-              @foreach (var propertyresource in property.Resources)
+              @if (property.Resources != null)
               {
-                if (propertyresource.ResourceId != null)
+                foreach (var propertyresource in property.Resources)
                 {
-                  <a href="/Home/Resource/@(resource.Context)/@propertyresource.ResourceId">
+                  if (propertyresource.ResourceId != null)
+                  {
+                    <a href="/Home/Resource/@(resource.Context)/@propertyresource.ResourceId">
+                      <small class="text-muted">@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
+                      <span>@((propertyresource.Title ?? new string[] { }).FirstOrDefault())</span>                   
+                    </a>
+                  }
+                  else
+                  {
                     <small class="text-muted">@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
-                    <span>@((propertyresource.Title ?? new string[] { }).FirstOrDefault())</span>                   
-                  </a>
-                }
-                else
-                {
-                  <small class="text-muted">@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
-                  <span>@((propertyresource.Title ?? new string[] { }).FirstOrDefault())</span>
+                    <span>@((propertyresource.Title ?? new string[] { }).FirstOrDefault())</span>
+                  }
                 }
               }
             </dd>

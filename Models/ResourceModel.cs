@@ -210,7 +210,7 @@ namespace Digitalisert.Models
         {
             foreach(var resource in query)
             {
-                foreach(var property in resource.Properties.Where(p => p.Resources.Any(r => r.Target != null)))
+                foreach(var property in resource.Properties.Where(p => p.Resources != null && p.Resources.Any(r => r.Target != null)))
                 {
                     property.Resources = property.Resources.Select(r => session.Load<ResourceModel.Property.Resource>(r.Target));
                 }
