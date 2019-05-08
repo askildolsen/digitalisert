@@ -50,21 +50,21 @@ namespace Digitalisert.Models
             {
                 AddMap<Resource>(resources =>
                     from resource in resources
-                    from source in resource.Source.Select(s => LoadDocument<Resource>(s)).Where(s => s != null)
-                    let properties = resource.Properties.Union(source.Properties)
+                    let source = LoadDocument<Resource>(resource.Source.Where(s => !s.StartsWith("Resource")).Distinct()).Where(r => r != null)
+                    let properties = resource.Properties.Union(source.SelectMany(s => s.Properties))
                     select new Resource
                     {
                         Context = resource.Context,
                         ResourceId = resource.ResourceId,
-                        Type = source.Type,
-                        SubType = source.SubType,
-                        Title = source.Title,
-                        SubTitle = source.SubTitle,
-                        Code = source.Code,
-                        Body = source.Body,
-                        Status = source.Status,
-                        Tags = source.Tags,
-                        Classification = source.Classification,
+                        Type = source.SelectMany(r => r.Type).Distinct(),
+                        SubType = source.SelectMany(r => r.SubType).Distinct(),
+                        Title = source.SelectMany(r => r.Title).Distinct(),
+                        SubTitle = source.SelectMany(r => r.SubTitle).Distinct(),
+                        Code = source.SelectMany(r => r.Code).Distinct(),
+                        Body = source.SelectMany(r => r.Body).Distinct(),
+                        Status = source.SelectMany(r => r.Status).Distinct(),
+                        Tags = source.SelectMany(r => r.Tags).Distinct(),
+                        Classification = source.SelectMany(r => r.Classification).Distinct(),
                         Properties = properties,
                         _ = (
                             from p in properties
@@ -73,8 +73,7 @@ namespace Digitalisert.Models
                                 pg.Key,
                                 pg.SelectMany(pv => pv.Value).Union(
                                     from r in pg.SelectMany(pr => pr.Resources)
-                                    from v in r.Code.Union(r.Title).Union(new string[] { r.ResourceId})
-                                    select v
+                                    select r.ResourceId
                                 ).Distinct()
                             )
                         )
