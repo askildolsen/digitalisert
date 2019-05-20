@@ -31,7 +31,16 @@
             <dd>
               @foreach (var value in property.Value ?? new string[] { })
               {
-                <span>@value</span>
+                if ((property.Tags ?? new string[] { }).Contains("@wkt"))
+                {
+                  <div class="embed-responsive embed-responsive-16by9">
+                    <div class="embed-responsive-item map">@value</div>
+                  </div>
+                }
+                else
+                {
+                  <span>@value</span>
+                }
               }
               @if (property.Resources != null)
               {
