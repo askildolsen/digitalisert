@@ -38,10 +38,7 @@ namespace Digitalisert.Models
             public IEnumerable<string> Tags { get; set; }
             public IEnumerable<Resource> Resources { get; set; }
             public IEnumerable<Property> Properties { get; set; }
-
-            public class Resource : ResourceModel.Resource {
-                public string Target { get; set; }
-            }
+            public IEnumerable<string> Source { get; set; }
         }
 
         public class ResourceIndex : AbstractMultiMapIndexCreationTask<Resource>
@@ -171,7 +168,7 @@ namespace Digitalisert.Models
                         query.WhereEquals(property.Name, value, false);
                     }
 
-                    foreach(var resource in property.Resources ?? new Property.Resource[] { })
+                    foreach(var resource in property.Resources ?? new Resource[] { })
                     {
                         foreach(var type in resource.Type ?? new string[] { })
                         {
@@ -205,13 +202,13 @@ namespace Digitalisert.Models
         }
 
 
-        public static IEnumerable<ResourceModel.Resource> LoadTargets(IQueryable<ResourceModel.Resource> query, Raven.Client.Documents.Session.IDocumentSession session)
+        public static IEnumerable<ResourceModel.Resource> LoadSource(IQueryable<ResourceModel.Resource> query, Raven.Client.Documents.Session.IDocumentSession session)
         {
             foreach(var resource in query)
             {
-                foreach(var property in resource.Properties.Where(p => p.Resources != null && p.Resources.Any(r => r.Target != null)))
+                foreach(var property in resource.Properties.Where(p => p.Resources != null && p.Resources.Any(r => r.Source.Any())))
                 {
-                    property.Resources = property.Resources.Select(r => session.Load<ResourceModel.Property.Resource>(r.Target));
+                    property.Resources = property.Resources.SelectMany(r => r.Source).Select(s => session.Load<Resource>(s));
                 }
 
                 yield return resource;

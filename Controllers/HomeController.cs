@@ -42,10 +42,10 @@ namespace Digitalisert.Controllers
             {
                 var query = session
                     .Query<ResourceModel.Resource, ResourceModel.ResourceIndex>()
-                    .Include<ResourceModel.Resource>(r => r.Properties.SelectMany(p => p.Resources).Select(re => re.Target))
+                    .Include<ResourceModel.Resource>(r => r.Properties.SelectMany(p => p.Resources).SelectMany(re => re.Source))
                     .Where(r => r.Context == context && r.ResourceId == id);
 
-                return View(ResourceModel.LoadTargets(query.ProjectInto<ResourceModel.Resource>(), session).ToList());
+                return View(ResourceModel.LoadSource(query.ProjectInto<ResourceModel.Resource>(), session).ToList());
             }
         }
 
