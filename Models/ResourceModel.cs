@@ -188,12 +188,13 @@ namespace Digitalisert.Models
 
                     foreach(var resource in property.Resources ?? new Resource[] { })
                     {
-                        foreach(var type in resource.Type ?? new string[] { })
+                        var resourcevalues = (new [] { resource.ResourceId ?? ""} )
+                            .Union(resource.Code ?? new string[] { })
+                            .Union(resource.Title ?? new string[] { });
+
+                        foreach(var value in resourcevalues.Where(v => !String.IsNullOrWhiteSpace(v)))
                         {
-                            foreach(var code in resource.Code ?? new string[] { })
-                            {
-                                query.WhereEquals(property.Name + "_" + type + "_Code", code);
-                            }
+                            query.WhereEquals(property.Name, value);
                         }
                     }
                 }
