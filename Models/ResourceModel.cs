@@ -54,6 +54,7 @@ namespace Digitalisert.Models
                         select new Property {
                             Name = propertyG.Key,
                             Value = propertyG.SelectMany(p => p.Value).Distinct(),
+                            Tags = propertyG.SelectMany(p => p.Tags).Distinct(),
                             Resources =
                                 from propertyresource in propertyG.SelectMany(p => p.Resources)
                                 group propertyresource by new { propertyresource.Context, propertyresource.ResourceId } into propertyresourceG
