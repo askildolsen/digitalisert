@@ -48,7 +48,24 @@ namespace Digitalisert.Models
                 AddMap<Resource>(resources =>
                     from resource in resources
                     let source = LoadDocument<Resource>(resource.Source.Where(s => !s.StartsWith("Resource")).Distinct()).Where(r => r != null)
-                    let properties = resource.Properties.Union(source.SelectMany(s => s.Properties))
+                    let properties = 
+                        from property in resource.Properties.Union(source.SelectMany(s => s.Properties))
+                        group property by property.Name into propertyG
+                        select new Property {
+                            Name = propertyG.Key,
+                            Value = propertyG.SelectMany(p => p.Value).Distinct(),
+                            Resources =
+                                from propertyresource in propertyG.SelectMany(p => p.Resources)
+                                group propertyresource by new { propertyresource.Context, propertyresource.ResourceId } into propertyresourceG
+                                let propertyresourcesource = LoadDocument<Resource>(propertyresourceG.SelectMany(r => r.Source).Where(s => !s.StartsWith("Resource")).Distinct()).Where(r => r != null)
+                                select new Resource {
+                                    Context = propertyresourceG.Key.Context,
+                                    ResourceId = propertyresourceG.Key.ResourceId,
+                                    Type = propertyresourcesource.SelectMany(r => r.Type).Distinct(),
+                                    Title = propertyresourcesource.SelectMany(r => r.Title).Distinct(),
+                                    Code = propertyresourcesource.SelectMany(r => r.Code).Distinct()
+                                }
+                        }
                     select new Resource
                     {
                         Context = resource.Context,
@@ -70,8 +87,9 @@ namespace Digitalisert.Models
                                 pg.Key,
                                 pg.SelectMany(pv => pv.Value).Union(
                                     from r in pg.SelectMany(pr => pr.Resources)
-                                    select r.ResourceId
-                                ).Distinct()
+                                    from term in new[] { r.ResourceId}.Union(r.Code).Union(r.Title)
+                                    select term
+                                ).Where(v => !String.IsNullOrWhiteSpace(v)).Distinct()
                             )
                         )
                     }
@@ -199,20 +217,6 @@ namespace Digitalisert.Models
             }
 
             return query;
-        }
-
-
-        public static IEnumerable<ResourceModel.Resource> LoadSource(IQueryable<ResourceModel.Resource> query, Raven.Client.Documents.Session.IDocumentSession session)
-        {
-            foreach(var resource in query)
-            {
-                foreach(var property in resource.Properties.Where(p => p.Resources != null && p.Resources.Any(r => r.Source.Any())))
-                {
-                    property.Resources = property.Resources.SelectMany(r => r.Source).Select(s => session.Load<Resource>(s));
-                }
-
-                yield return resource;
-            }
         }
     }
 }

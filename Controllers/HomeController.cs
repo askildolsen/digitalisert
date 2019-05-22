@@ -45,7 +45,7 @@ namespace Digitalisert.Controllers
                     .Include<ResourceModel.Resource>(r => r.Properties.SelectMany(p => p.Resources).SelectMany(re => re.Source))
                     .Where(r => r.Context == context && r.ResourceId == id);
 
-                return View(ResourceModel.LoadSource(query.ProjectInto<ResourceModel.Resource>(), session).ToList());
+                return View(query.ProjectInto<ResourceModel.Resource>().ToList());
             }
         }
 
