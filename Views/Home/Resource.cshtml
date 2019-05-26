@@ -1,4 +1,4 @@
-﻿@using System.Collections.Generic
+@using System.Collections.Generic
 @using Digitalisert.Models
 @model IEnumerable<ResourceModel.Resource>
 
@@ -16,7 +16,7 @@
     <div class="card-body">
       <h5 class="card-title position-relative">
         <small class="text-muted">@resource.Code?.FirstOrDefault()</small>
-        @resource.Title.FirstOrDefault()
+        @resource.Title?.FirstOrDefault()
         <a class="stretched-link text-hide" href="/Home/Resource/@(resource.Context)/@resource.ResourceId">...</a>
       </h5>
       <h6 class="card-subtitle mb-2 text-muted">@resource.SubTitle?.FirstOrDefault()</h6>
