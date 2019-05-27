@@ -48,7 +48,7 @@
                 {
                   if (propertyresource.ResourceId != null)
                   {
-                    <a href="/Home/Resource/@(resource.Context)/@propertyresource.ResourceId">
+                    <a href="/Home/Resource/@(propertyresource.Context)/@propertyresource.ResourceId">
                       <small class="text-muted">@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
                       <span>@(propertyresource.Title.Union(propertyresource.Type).FirstOrDefault())</span>
                     </a>
