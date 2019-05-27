@@ -50,7 +50,7 @@
                   {
                     <a href="/Home/Resource/@(resource.Context)/@propertyresource.ResourceId">
                       <small class="text-muted">@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
-                      <span>@((propertyresource.Title ?? new string[] { }).FirstOrDefault())</span>                   
+                      <span>@(propertyresource.Title.Union(propertyresource.Type).FirstOrDefault())</span>
                     </a>
                   }
                   else
