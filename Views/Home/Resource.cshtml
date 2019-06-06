@@ -44,19 +44,23 @@
               }
               @if (property.Resources != null)
               {
-                foreach (var propertyresource in property.Resources)
+                foreach (var propertyresourceG in property.Resources.GroupBy(r => String.Join(", ", r.Type)).OrderBy(g => g.Key))
                 {
-                  if (propertyresource.ResourceId != null)
+                  <span class="badge badge-pill badge-info">@propertyresourceG.Key</span>
+                  foreach (var propertyresource in propertyresourceG)
                   {
-                    <a href="/Home/Resource/@(propertyresource.Context)/@propertyresource.ResourceId">
+                    if (propertyresource.ResourceId != null)
+                    {
+                      <a href="/Home/Resource/@(propertyresource.Context)/@propertyresource.ResourceId">
+                        <small class="text-muted">@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
+                        <span>@(propertyresource.Title.Union(propertyresource.Type).FirstOrDefault())</span>
+                      </a>
+                    }
+                    else
+                    {
                       <small class="text-muted">@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
-                      <span>@(propertyresource.Title.Union(propertyresource.Type).FirstOrDefault())</span>
-                    </a>
-                  }
-                  else
-                  {
-                    <small class="text-muted">@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
-                    <span>@((propertyresource.Title ?? new string[] { }).FirstOrDefault())</span>
+                      <span>@((propertyresource.Title ?? new string[] { }).FirstOrDefault())</span>
+                    }
                   }
                 }
               }
