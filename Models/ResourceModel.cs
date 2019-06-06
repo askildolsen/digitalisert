@@ -80,7 +80,7 @@ namespace Digitalisert.Models
                         Status = source.SelectMany(r => r.Status).Distinct(),
                         Tags = source.SelectMany(r => r.Tags).Distinct(),
                         Classification = source.SelectMany(r => r.Classification).Distinct(),
-                        Properties = properties,
+                        Properties = properties.Where(p => !p.Name.StartsWith("@")),
                         _ = (
                             from p in properties
                             group p by p.Name into pg
