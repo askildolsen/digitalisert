@@ -82,14 +82,26 @@ namespace Digitalisert.Models
                         Classification = source.SelectMany(r => r.Classification).Distinct(),
                         Properties = properties.Where(p => !p.Name.StartsWith("@")),
                         _ = (
-                            from p in properties
-                            group p by p.Name into pg
+                            from property in properties
+                            group property by property.Name into propertyG
                             select CreateField(
-                                pg.Key,
-                                pg.SelectMany(pv => pv.Value).Union(
-                                    from r in pg.SelectMany(pr => pr.Resources)
-                                    from term in new[] { r.ResourceId}.Union(r.Code).Union(r.Title)
-                                    select term
+                                propertyG.Key,
+                                propertyG.SelectMany(p => p.Value).Union(
+                                    from propertyresource in propertyG.SelectMany(p => p.Resources)
+                                    from fieldvalue in new[] { propertyresource.ResourceId }.Union(propertyresource.Code).Union(propertyresource.Title)
+                                    select fieldvalue
+                                ).Where(v => !String.IsNullOrWhiteSpace(v)).Distinct()
+                            )
+                        ).Union(
+                            from property in properties
+                            group property by property.Name into propertyG
+                            from resourcetype in propertyG.SelectMany(p => p.Resources).SelectMany(r => r.Type).Distinct()
+                            select CreateField(
+                                propertyG.Key + "." + resourcetype,
+                                (
+                                    from propertyresource in propertyG.SelectMany(p => p.Resources).Where(r => r.Type.Contains(resourcetype))
+                                    from fieldvalue in new[] { propertyresource.ResourceId }.Union(propertyresource.Code).Union(propertyresource.Title)
+                                    select fieldvalue
                                 ).Where(v => !String.IsNullOrWhiteSpace(v)).Distinct()
                             )
                         )
