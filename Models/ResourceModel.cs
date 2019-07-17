@@ -127,6 +127,7 @@ namespace Digitalisert.Models
                 Store(r => r.Title, FieldStorage.Yes);
                 Store(r => r.SubTitle, FieldStorage.Yes);
                 Store(r => r.Code, FieldStorage.Yes);
+                Store(r => r.Body, FieldStorage.Yes);
                 Store(r => r.Status, FieldStorage.Yes);
                 Store(r => r.Tags, FieldStorage.Yes);
                 Store(r => r.Classification, FieldStorage.Yes);
