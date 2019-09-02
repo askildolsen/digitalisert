@@ -6,69 +6,13 @@
     ViewData["Title"] = "Resource Page";
 }
 
-@foreach (var resource in Model)
+<partial name="~/Views/Shared/_Map.cshtml" />
+
+@if (Model.Skip(1).Any())
 {
-  <div class="card">
-    <h5 class="card-header">
-      @String.Join(", ", @resource.Type)
-      <small class="">@String.Join(", ", @resource.SubType ?? new string[] { })</small>
-    </h5>
-    <div class="card-body">
-      <h5 class="card-title position-relative">
-        <small class="text-muted">@resource.Code?.FirstOrDefault()</small>
-        @resource.Title?.FirstOrDefault()
-        <a class="stretched-link text-hide" href="/Home/Resource/@(resource.Context)/@resource.ResourceId">...</a>
-      </h5>
-      <h6 class="card-subtitle mb-2 text-muted">@resource.SubTitle?.FirstOrDefault()</h6>
-      @foreach(var body in resource.Body ?? new string[] { } )
-      {
-        <p class="card-text">@String.Join(",", @body)</p>
-      }
-      <dl>
-        @foreach (var property in resource.Properties.Where(p => (p.Value ?? new string[] { }).Any() || p.Resources.Any(r => (r.Code ?? new string[] {}).Any())))
-        {
-            <dt>@property.Name</dt>
-            <dd>
-              @foreach (var value in property.Value ?? new string[] { })
-              {
-                if ((property.Tags ?? new string[] { }).Contains("@wkt"))
-                {
-                  <div class="embed-responsive embed-responsive-16by9">
-                    <div class="embed-responsive-item map">@value</div>
-                  </div>
-                }
-                else
-                {
-                  <span>@value</span>
-                }
-              }
-              @if (property.Resources != null)
-              {
-                foreach (var propertyresourceG in property.Resources.GroupBy(r => String.Join(", ", r.Type)).OrderBy(g => g.Key))
-                {
-                  <span class="badge badge-pill badge-info">@propertyresourceG.Key</span>
-                  foreach (var propertyresource in propertyresourceG)
-                  {
-                    if (propertyresource.ResourceId != null)
-                    {
-                      <a href="/Home/Resource/@(propertyresource.Context)/@propertyresource.ResourceId">
-                        <small class="text-muted">@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
-                        <span>@(propertyresource.Title.Union(propertyresource.Type).FirstOrDefault())</span>
-                      </a>
-                    }
-                    else
-                    {
-                      <small class="text-muted">@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
-                      <span>@((propertyresource.Title ?? new string[] { }).FirstOrDefault())</span>
-                    }
-                  }
-                }
-              }
-            </dd>
-        }
-      </dl>
-    </div>
-    <div class="card-footer">@String.Join(", ", @resource.Tags ?? new string[] { })</div>
-  </div>
-  <br>
+  <partial name="~/Views/Shared/_ListGroup.cshtml" />
+}
+else if (Model.Any())
+{
+  <partial name="~/Views/Shared/_Resource.cshtml" model="Model.First()"/>
 }

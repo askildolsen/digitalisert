@@ -1,0 +1,53 @@
+@using System.Collections.Generic
+@using Digitalisert.Models
+@model ResourceModel.Resource
+
+<h1>
+  <small class="text-muted">@Model.Code?.FirstOrDefault()</small>
+  @Model.Title?.FirstOrDefault()
+</h1>
+
+@foreach (var type in Model.Type)
+{
+    <a href="/Home/Resource?resources[0].Type=@type" class="badge badge-pill badge-dark">@type</a>
+}
+
+@foreach (var subType in Model.SubType ?? new string[] { })
+{
+    <a href="/Home/Resource?resources[0].SubType=@subType" class="badge badge-pill badge-secondary">@subType</a>
+}
+
+<dl class="row">
+  @foreach (var property in Model.Properties)
+  {
+    <dt class="col-sm-3">@property.Name</dt>
+    <dd class="col-sm-9">
+      @foreach (var value in property.Value ?? new string[] { })
+      {
+        <div class="text-truncate">@value</div>
+      }
+      @if (property.Resources != null)
+      {
+        foreach (var propertyresourceG in property.Resources.GroupBy(r => String.Join(", ", r.Type)).OrderBy(g => g.Key))
+        {
+          <span class="badge badge-pill badge-info">@propertyresourceG.Key</span>
+          foreach (var propertyresource in propertyresourceG)
+          {
+            if (propertyresource.ResourceId != null)
+            {
+              <a href="/Home/Resource/@(propertyresource.Context)/@propertyresource.ResourceId">
+                <small class="text-muted">@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
+                <span>@(propertyresource.Title.Union(propertyresource.Type).FirstOrDefault())</span>
+              </a>
+            }
+            else
+            {
+              <small class="text-muted">@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
+              <span>@((propertyresource.Title ?? new string[] { }).FirstOrDefault())</span>
+            }
+          }
+        }
+      }
+    </dd>
+  }
+</dl>
