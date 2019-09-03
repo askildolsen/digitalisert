@@ -17,6 +17,16 @@
     <a href="/Home/Resource?resources[0].SubType=@subType" class="badge badge-pill badge-secondary">@subType</a>
 }
 
+@foreach (var tags in Model.Tags ?? new string[] { })
+{
+    <a href="/Home/Resource?resources[0].Tags=@tags" class="badge badge-pill badge-light">@tags</a>
+}
+
+@foreach (var body in Model.Body ?? new string[] { })
+{
+    <p class="text-break">@body</p>
+}
+
 <dl class="row">
   @foreach (var property in Model.Properties)
   {
