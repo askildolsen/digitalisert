@@ -4,7 +4,6 @@ using System.Linq;
 using Raven.Client.Documents;
 using Raven.Client.Documents.Indexes;
 using Raven.Client.Documents.Linq;
-using Raven.Client.Documents.Linq.Indexing;
 using Raven.Client.Documents.Queries.Facets;
 using Raven.Client.Documents.Session;
 
@@ -104,6 +103,14 @@ namespace Digitalisert.Models
                                     select fieldvalue
                                 ).Where(v => !String.IsNullOrWhiteSpace(v)).Distinct()
                             )
+                        ).Union(
+                            new object[] {
+                                CreateField(
+                                    "Properties",
+                                    properties.Select(p => p.Name).Where(n => !n.StartsWith("@")).Distinct(),
+                                    new CreateFieldOptions { Indexing = FieldIndexing.Exact }
+                                )
+                            }
                         )
                     }
                 );
@@ -154,7 +161,7 @@ namespace Digitalisert.Models
             new Facet { FieldName = "SubType" },
             new Facet { FieldName = "Tags" },
             new Facet { FieldName = "Status" },
-            new Facet { FieldName = "Classification" }
+            new Facet { FieldName = "Properties" }
         };
 
         public static IDocumentQuery<Resource> QueryByExample(IDocumentQuery<Resource> query, IEnumerable<Resource> examples)
@@ -171,12 +178,12 @@ namespace Digitalisert.Models
                     new { Name = "Code", Values = example.Code },
                     new { Name = "Status", Values = example.Status },
                     new { Name = "Tags", Values = example.Tags },
-                    new { Name = "Classification", Values = (example.Classification ?? new string[][] {}).SelectMany(c => c) }
+                    new { Name = "Properties", Values = (example.Properties ?? new Property[] { }).Select(p => p.Name) }
                 };
 
                 foreach(var field in fields)
                 {
-                    foreach (var value in field.Values ?? new string[] { })
+                    foreach (var value in (field.Values ?? new string[] { }).Where(v => !String.IsNullOrWhiteSpace(v)))
                     {
                         if (value.StartsWith("-"))
                         {
@@ -195,7 +202,7 @@ namespace Digitalisert.Models
 
                 foreach(var property in example.Properties ?? new Property[] { })
                 {
-                    foreach(var value in property.Value ?? new string[] { })
+                    foreach(var value in (property.Value ?? new string[] { }).Where(v => !String.IsNullOrWhiteSpace(v)))
                     {
                         query.WhereEquals(property.Name, value, false);
                     }
@@ -213,17 +220,17 @@ namespace Digitalisert.Models
                     }
                 }
 
-                foreach(var title in example.Title ?? new string[] { })
+                foreach(var title in (example.Title ?? new string[] { }).Where(v => !String.IsNullOrWhiteSpace(v)))
                 {
                     query.Search("Title", title, Raven.Client.Documents.Queries.SearchOperator.And);
                 }
 
-                foreach(var subTitle in example.SubTitle ?? new string[] { })
+                foreach(var subTitle in (example.SubTitle ?? new string[] { }).Where(v => !String.IsNullOrWhiteSpace(v)))
                 {
                     query.Search("SubTitle", subTitle, Raven.Client.Documents.Queries.SearchOperator.And);
                 }
 
-                foreach(var body in example.Body ?? new string[] { })
+                foreach(var body in (example.Body ?? new string[] { }).Where(v => !String.IsNullOrWhiteSpace(v)))
                 {
                     query.Search("Body", body, Raven.Client.Documents.Queries.SearchOperator.And);
                 }
