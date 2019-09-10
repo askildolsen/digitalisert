@@ -1,0 +1,43 @@
+@using System.Collections.Generic
+@using Digitalisert.Models
+@model IEnumerable<ResourceModel.Resource>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
+  <a class="navbar-brand" href="/Home/Resource">Digitalisert</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarContent">
+    <ul class="navbar-nav mr-auto">
+      @foreach (var facet in ViewBag.ResourceFacet)
+      {
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown@(facet.Value.Name)" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            @facet.Value.Name
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown@(facet.Value.Name)">
+            @foreach(var value in facet.Value.Values)
+            {
+              var name = (facet.Value.Name == "Properties") ? "Properties[0].Name" : facet.Value.Name;
+              if (Context.Request.Query["resources[0]." + name] == value.Range)
+              {
+                <a href="/Home/Resource" class="dropdown-item active">
+                  @value.Range
+                  <span class="badge badge-pill badge-secondary">@value.Count</span>
+                </a>
+              }
+              else
+              {
+                <a href="/Home/Resource?resources[0].@(name)=@(value.Range)" class="dropdown-item">
+                  @value.Range
+                  <span class="badge badge-pill badge-secondary">@value.Count</span>
+                </a>
+              }
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  </div>
+</nav>

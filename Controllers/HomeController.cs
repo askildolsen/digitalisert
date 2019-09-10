@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Raven.Client.Documents;
+using Raven.Client.Documents.Queries.Facets;
 using Digitalisert.Models;
 
 namespace Digitalisert.Controllers
 {
     public class HomeController : Controller
     {
-
-       private readonly IDocumentStore _store;
+        [ViewData]
+        public Dictionary<string, FacetResult> ResourceFacet { get; set; }
+        private readonly IDocumentStore _store;
 
         public HomeController()
         {
@@ -31,7 +32,11 @@ namespace Digitalisert.Controllers
 
                 query = ResourceModel.QueryByExample(query, resources);
 
-                return View(query.ToQueryable().ProjectInto<ResourceModel.Resource>().Take(100).ToList());
+                var result = query.ToQueryable().ProjectInto<ResourceModel.Resource>().Take(100).ToList();
+
+                ResourceFacet = query.AggregateBy(ResourceModel.Facets).Execute();
+
+                return View(result);
             }
         }
 
@@ -44,6 +49,8 @@ namespace Digitalisert.Controllers
                     .Query<ResourceModel.Resource, ResourceModel.ResourceIndex>()
                     .Include<ResourceModel.Resource>(r => r.Properties.SelectMany(p => p.Resources).SelectMany(re => re.Source))
                     .Where(r => r.Context == context && r.ResourceId == id);
+
+                ResourceFacet = session.Query<ResourceModel.Resource, ResourceModel.ResourceIndex>().AggregateBy(ResourceModel.Facets).Execute();
 
                 return View(query.ProjectInto<ResourceModel.Resource>().ToList());
             }
