@@ -34,7 +34,17 @@
     <dd class="col-sm-9">
       @foreach (var value in property.Value ?? new string[] { })
       {
-        <div class="text-truncate">@value</div>
+        if (value.Length < 300)
+        {
+          <p>@value</p>
+        }
+        else
+        {
+          <p id="@(property.Name)-collapse" data-toggle="collapse" data-target="#@(property.Name)-collapse .collapse">
+            <span>@(value.Substring(0, 300))</span><span class="collapse hide">@(value.Substring(300))</span>
+            <a class="collapse show">...</a>
+          </p>
+        }
       }
       @if (property.Resources != null)
       {
