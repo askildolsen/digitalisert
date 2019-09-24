@@ -8,6 +8,11 @@
 
 <partial name="~/Views/Shared/_Navbar.cshtml" />
 
+@if (Model.Any(r => r.Properties.Any(p => p.Tags.Contains("@wkt"))))
+{
+  <partial name="~/Views/Shared/_Map.cshtml" />
+}
+
 @if (Model.Skip(1).Any())
 {
   <partial name="~/Views/Shared/_ListGroup.cshtml" />
