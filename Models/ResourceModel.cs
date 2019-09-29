@@ -6,6 +6,7 @@ using Raven.Client.Documents.Indexes;
 using Raven.Client.Documents.Linq;
 using Raven.Client.Documents.Queries.Facets;
 using Raven.Client.Documents.Session;
+using static Digitalisert.Models.ResourceModelUtils;
 
 namespace Digitalisert.Models
 {
@@ -62,6 +63,7 @@ namespace Digitalisert.Models
                                     Context = propertyresourceG.Key.Context,
                                     ResourceId = propertyresourceG.Key.ResourceId,
                                     Type = propertyresourcesource.SelectMany(r => r.Type).Distinct(),
+                                    SubType = propertyresourcesource.SelectMany(r => r.SubType).Distinct(),
                                     Title = propertyresourcesource.SelectMany(r => r.Title).Distinct(),
                                     Code = propertyresourcesource.SelectMany(r => r.Code).Distinct()
                                 }
@@ -77,7 +79,7 @@ namespace Digitalisert.Models
                         Code = source.SelectMany(r => r.Code).Distinct(),
                         Body = source.SelectMany(r => r.Body).Distinct(),
                         Status = source.SelectMany(r => r.Status).Distinct(),
-                        Tags = source.SelectMany(r => r.Tags).Distinct(),
+                        Tags = source.SelectMany(r => r.Tags).Union(resource.Properties.Where(p => p.Name == "@tags" && PropertyResourceComparison(p, properties)).SelectMany(p => p.Value)).Distinct(),
                         Classification = source.SelectMany(r => r.Classification).Distinct(),
                         Properties = properties.Where(p => !p.Name.StartsWith("@")),
                         _ = (
@@ -143,6 +145,14 @@ namespace Digitalisert.Models
                 Analyzers.Add(x => x.Title, "SimpleAnalyzer");
                 Analyzers.Add(x => x.SubTitle, "SimpleAnalyzer");
                 Analyzers.Add(x => x.Body, "SimpleAnalyzer");
+
+                AdditionalSources = new Dictionary<string, string>
+                {
+                    {
+                        "ResourceModelUtils",
+                        ReadResourceFile("digitalisert.Models.ResourceModelUtils.cs")
+                    }
+                };
             }
 
             public override IndexDefinition CreateIndexDefinition()
