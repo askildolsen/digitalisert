@@ -3,7 +3,7 @@ import { Map, Marker, Polygon, Popup, TileLayer, ZoomControl } from 'react-leafl
 import L from 'leaflet';
 import Wkt from 'wicket';
 
-function ResourcePopup({ resource }) {
+function ResourcePopup({ resource } : any) {
   return (
     <Popup>
       <small className="text-muted">{resource.code}</small>
@@ -13,19 +13,19 @@ function ResourcePopup({ resource }) {
   );
 }
 
-function App({url}) {
+function App({url} : any) {
 
   const [bounds, setBounds] = useState();
   const [center, setCenter] = useState();
   const [markers, setMarkers] = useState();
 
   useEffect(() => {
-    const fetchData = async (url) => {
+    const fetchData = async (url: string) => {
       const resources = await (await fetch(url)).json();
       const responsemarkers =
-        resources.map((resource, rindex) => {
-          return resource.properties.filter(p => p.tags.includes("@wkt")).map((property, pindex) => {
-            return property.value.map((value, vindex) => {
+        resources.map((resource: any, rindex: Number) => {
+          return resource.properties.filter((p: any) => p.tags.includes("@wkt")).map((property: any, pindex: Number) => {
+            return property.value.map((value: string, vindex: Number) => {
               var wkt = new Wkt.Wkt().read(value);
               if (wkt.type === "point") {
                 return (
@@ -35,17 +35,17 @@ function App({url}) {
                 )
               } else {
                 return (
-                  <Polygon key={rindex + "-" + pindex + "-" + vindex} positions={wkt.components[0].map(c => { return [c.y, c.x] } )}>
+                  <Polygon key={rindex + "-" + pindex + "-" + vindex} positions={wkt.components[0].map((c: any) => { return [c.y, c.x] } )}>
                     <ResourcePopup resource={resource}/>
                   </Polygon>
                 )
               }
             });
           });
-        }).reduce((x,y) => x.concat(y), []).reduce((x,y) => x.concat(y), []);
+        }).reduce((x: any,y: any) => x.concat(y), []).reduce((x: any, y: any) => x.concat(y), []);
 
-        const positions = [].concat(...responsemarkers.map(m => (m.props.position !== undefined) ? [m.props.position] : m.props.positions));
-        if (positions.length > 1) {
+        const positions = [].concat(...responsemarkers.map((m: any) => (m.props.position) ? [m.props.position] : m.props.positions));
+        if (positions.length > 1 && positions.some((p1: any) => positions.some((p2: any) => p1.join('|') !== p2.join('|')))) {
           setBounds(positions);
         }
         else {

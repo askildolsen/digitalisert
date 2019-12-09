@@ -5,4 +5,6 @@ import 'leaflet/dist/leaflet.css';
 
 var root = document.getElementById('map');
 
-ReactDOM.render(<App url={root.dataset.url}/>, root);
+if (root) {
+    ReactDOM.render(<App url={root.dataset.url}/>, root);
+}
