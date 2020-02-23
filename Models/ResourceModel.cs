@@ -6,7 +6,6 @@ using Raven.Client.Documents.Indexes;
 using Raven.Client.Documents.Linq;
 using Raven.Client.Documents.Queries.Facets;
 using Raven.Client.Documents.Session;
-using static Digitalisert.Models.ResourceModelUtils;
 
 namespace Digitalisert.Models
 {
@@ -79,7 +78,7 @@ namespace Digitalisert.Models
                         Code = source.SelectMany(r => r.Code).Distinct(),
                         Body = source.SelectMany(r => r.Body).Distinct(),
                         Status = source.SelectMany(r => r.Status).Distinct(),
-                        Tags = source.SelectMany(r => r.Tags).Union(resource.Properties.Where(p => p.Name == "@tags" && PropertyResourceComparison(p, properties)).SelectMany(p => p.Value)).Distinct(),
+                        Tags = source.SelectMany(r => r.Tags).Union(resource.Tags).Distinct(),
                         Classification = source.SelectMany(r => r.Classification).Distinct(),
                         Properties = properties.Where(p => !p.Name.StartsWith("@")),
                         _ = (
@@ -145,14 +144,6 @@ namespace Digitalisert.Models
                 Analyzers.Add(x => x.Title, "SimpleAnalyzer");
                 Analyzers.Add(x => x.SubTitle, "SimpleAnalyzer");
                 Analyzers.Add(x => x.Body, "SimpleAnalyzer");
-
-                AdditionalSources = new Dictionary<string, string>
-                {
-                    {
-                        "ResourceModelUtils",
-                        ReadResourceFile("digitalisert.Models.ResourceModelUtils.cs")
-                    }
-                };
             }
 
             public override IndexDefinition CreateIndexDefinition()
