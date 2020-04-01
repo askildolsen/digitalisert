@@ -15,7 +15,7 @@ function ResourcePopup({ resource } : any) {
 
 function App({url} : any) {
 
-  const [bounds, setBounds] = useState();
+  const [bounds, setBounds] = useState<Array<[number, number]> | undefined>();
   const [center, setCenter] = useState();
   const [markers, setMarkers] = useState();
 
@@ -34,8 +34,11 @@ function App({url} : any) {
                   </Marker>
                 )
               } else {
+                const polygonpositions = (wkt.components.length > 1)
+                  ? wkt.components.map((co: any) => { return co.map((c: any) => { return [c.y, c.x] } ) })
+                  : wkt.components[0].map((c: any) => { return [c.y, c.x] } );
                 return (
-                  <Polygon key={rindex + "-" + pindex + "-" + vindex} positions={wkt.components[0].map((c: any) => { return [c.y, c.x] } )}>
+                  <Polygon key={rindex + "-" + pindex + "-" + vindex} positions={ polygonpositions }>
                     <ResourcePopup resource={resource}/>
                   </Polygon>
                 )
