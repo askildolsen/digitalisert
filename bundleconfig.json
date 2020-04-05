@@ -8,8 +8,7 @@
   {
     "outputFileName": "wwwroot/css/vendor.css",
     "inputFiles": [
-      "node_modules/bootstrap/dist/css/bootstrap.css",
-      "node_modules/leaflet/dist/leaflet.css"
+      "node_modules/bootstrap/dist/css/bootstrap.css"
     ],
     "minify": {
       "enabled": false
@@ -18,8 +17,7 @@
   {
     "outputFileName": "wwwroot/css/vendor.min.css",
     "inputFiles": [
-      "node_modules/bootstrap/dist/css/bootstrap.css",
-      "node_modules/leaflet/dist/leaflet.css"
+      "node_modules/bootstrap/dist/css/bootstrap.css"
     ]
   },
   {
@@ -38,10 +36,7 @@
     "inputFiles": [
       "node_modules/jquery/dist/jquery.slim.js",
       "node_modules/popper.js/dist/umd/popper.js",
-      "node_modules/bootstrap/dist/js/bootstrap.js",
-      "node_modules/leaflet/dist/leaflet.js",
-      "node_modules/wicket/wicket.js",
-      "node_modules/wicket/wicket-leaflet.js"
+      "node_modules/bootstrap/dist/js/bootstrap.js"
     ],
     "minify": {
       "enabled": false
@@ -52,10 +47,7 @@
     "inputFiles": [
       "node_modules/jquery/dist/jquery.slim.js",
       "node_modules/popper.js/dist/umd/popper.js",
-      "node_modules/bootstrap/dist/js/bootstrap.js",
-      "node_modules/leaflet/dist/leaflet.js",
-      "node_modules/wicket/wicket.js",
-      "node_modules/wicket/wicket-leaflet.js"
+      "node_modules/bootstrap/dist/js/bootstrap.js"
     ],
     "sourceMap": true
   }

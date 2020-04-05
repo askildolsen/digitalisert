@@ -2,6 +2,10 @@
 <div id="map" data-url="@(Context.Request.Path.ToString().Replace("Home", "api"))@(Context.Request.QueryString)"></div>
 
 @{
+    foreach(var fileInfo in new System.IO.DirectoryInfo(HostingEnvironment.WebRootPath + "/map/build/static/css").GetFiles("*.css"))
+    {
+        <link rel="stylesheet" href="~/map/build/static/css/@(fileInfo.Name)" asp-append-version="true" />
+    }
     foreach(var fileInfo in new System.IO.DirectoryInfo(HostingEnvironment.WebRootPath + "/map/build/static/js").GetFiles("*.js"))
     {
         <script src="~/map/build/static/js/@(fileInfo.Name)"></script>
