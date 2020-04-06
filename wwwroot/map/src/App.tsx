@@ -3,13 +3,13 @@ import { Map, Marker, Polygon, Popup, TileLayer, ZoomControl } from 'react-leafl
 import L from 'leaflet';
 import Wkt from 'wicket';
 
-function ResourcePopup({ resource } : any) {
+function ResourceCard({ resource } : any) {
   return (
-    <Popup>
+    <a href={"Resource/" + resource.context + "/" + resource.resourceId}>
       <small className="text-muted">{resource.code}</small>
-      <span> - </span>
-      {resource.title}
-    </Popup>
+        <span> - </span>
+        {resource.title}
+    </a>
   );
 }
 
@@ -30,7 +30,9 @@ function App({url} : any) {
               if (wkt.type === "point") {
                 return (
                   <Marker key={rindex + "-" + pindex + "-" + vindex} position={[wkt.components[0].y, wkt.components[0].x]} icon={L.divIcon()}>
-                    <ResourcePopup resource={resource}/>
+                    <Popup key={"pop-" + rindex + "-" + pindex + "-" + vindex}>
+                      <ResourceCard resource={resource}/>
+                    </Popup>
                   </Marker>
                 )
               } else {
@@ -39,7 +41,9 @@ function App({url} : any) {
                   : wkt.components[0].map((c: any) => { return [c.y, c.x] } );
                 return (
                   <Polygon key={rindex + "-" + pindex + "-" + vindex} positions={ polygonpositions }>
-                    <ResourcePopup resource={resource}/>
+                    <Popup key={"pop-" + rindex + "-" + pindex + "-" + vindex}>
+                      <ResourceCard resource={resource}/>
+                    </Popup>
                   </Polygon>
                 )
               }
