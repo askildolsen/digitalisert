@@ -1,5 +1,5 @@
 @inject Microsoft.AspNetCore.Hosting.IHostingEnvironment HostingEnvironment
-<div id="map" data-url="@(Context.Request.Path.ToString().Replace("Home", "api"))@(Context.Request.QueryString)"></div>
+<div id="map" class="responsive-embed widescreen" data-url="@(Context.Request.Path.ToString().Replace("Home", "api"))@(Context.Request.QueryString)"></div>
 
 @{
     foreach(var fileInfo in new System.IO.DirectoryInfo(HostingEnvironment.WebRootPath + "/map/build/static/css").GetFiles("*.css"))

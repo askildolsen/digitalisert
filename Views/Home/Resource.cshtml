@@ -6,18 +6,20 @@
     ViewData["Title"] = "Resource Page";
 }
 
-<partial name="~/Views/Shared/_Navbar.cshtml" />
+<partial name="~/Views/Shared/_Topbar.cshtml" />
 
 @if (Model.Any(r => r.Properties.Any(p => p.Tags.Contains("@wkt"))))
 {
   <partial name="~/Views/Shared/_Map.cshtml" />
 }
 
-@if (Model.Skip(1).Any())
-{
-  <partial name="~/Views/Shared/_ListGroup.cshtml" />
-}
-else if (Model.Any())
-{
-  <partial name="~/Views/Shared/_Resource.cshtml" model="Model.First()"/>
-}
+<div class="grid-container fluid">
+  @if (Model.Skip(1).Any())
+  {
+    <partial name="~/Views/Shared/_Accordion.cshtml" />
+  }
+  else if (Model.Any())
+  {
+    <partial name="~/Views/Shared/_Resource.cshtml" model="Model.First()"/>
+  }
+</div>

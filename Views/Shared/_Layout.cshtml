@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html class="no-js">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -15,13 +15,8 @@
     </environment>
 </head>
 <body>
-    <div class="container">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; 2018 - digitalisert</p>
-        </footer>
-    </div>
+
+    @RenderBody()
 
     <environment include="Development">
         <script src="~/js/vendor.js" asp-append-version="true"></script>

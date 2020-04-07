@@ -1,37 +1,36 @@
-@using System.Collections.Generic
 @using Digitalisert.Models
 @model ResourceModel.Resource
 
 <h1>
-  <small class="text-muted">@Model.Code?.FirstOrDefault()</small>
+  <small>@Model.Code?.FirstOrDefault()</small>
   @Model.Title?.FirstOrDefault()
 </h1>
 
 @foreach (var type in Model.Type)
 {
-    <a href="/Home/Resource?resources[0].Type=@type" class="badge badge-pill badge-dark">@type</a>
+    <a href="/Home/Resource?resources[0].Type=@type" class="label primary">@type</a>
 }
 
 @foreach (var subType in Model.SubType ?? new string[] { })
 {
-    <a href="/Home/Resource?resources[0].SubType=@subType" class="badge badge-pill badge-secondary">@subType</a>
+    <a href="/Home/Resource?resources[0].SubType=@subType" class="label secondary">@subType</a>
 }
 
 @foreach (var tags in Model.Tags ?? new string[] { })
 {
-    <a href="/Home/Resource?resources[0].Tags=@tags" class="badge badge-pill badge-light">@tags</a>
+    <a href="/Home/Resource?resources[0].Tags=@tags" class="label">@tags</a>
 }
 
 @foreach (var body in Model.Body ?? new string[] { })
 {
-    <p class="text-break">@body</p>
+    <p>@body</p>
 }
 
-<dl class="row">
+<dl>
   @foreach (var property in Model.Properties)
   {
-    <dt class="col-sm-3">@property.Name</dt>
-    <dd class="col-sm-9">
+    <dt>@property.Name</dt>
+    <dd>
       @foreach (var value in property.Value ?? new string[] { })
       {
         if (value.Length < 300)
@@ -40,9 +39,10 @@
         }
         else
         {
-          <p id="@(property.Name)-collapse" data-toggle="collapse" data-target="#@(property.Name)-collapse .collapse">
-            <span>@(value.Substring(0, 300))</span><span class="collapse hide">@(value.Substring(300))</span>
-            <a class="collapse show">...</a>
+          <p>
+            <span>@(value.Substring(0, 300))</span>
+            <span id="@(property.Name)-collapse" class="hide" data-toggler=".hide">@(value.Substring(300))</span>
+            <a data-toggle="@(property.Name)-collapse">...</a>
           </p>
         }
       }
@@ -50,19 +50,19 @@
       {
         foreach (var propertyresourceG in property.Resources.GroupBy(r => String.Join(", ", r.Type)).OrderBy(g => g.Key))
         {
-          <span class="badge badge-pill badge-info">@propertyresourceG.Key</span>
+          <span class="label secondary">@propertyresourceG.Key</span>
           foreach (var propertyresource in propertyresourceG)
           {
             if (propertyresource.ResourceId != null)
             {
               <a href="/Home/Resource/@(propertyresource.Context)/@propertyresource.ResourceId">
-                <small class="text-muted">@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
+                <small>@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
                 <span>@(propertyresource.Title.Union(propertyresource.Type).FirstOrDefault())</span>
               </a>
             }
             else
             {
-              <small class="text-muted">@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
+              <small>@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
               <span>@((propertyresource.Title ?? new string[] { }).FirstOrDefault())</span>
             }
           }

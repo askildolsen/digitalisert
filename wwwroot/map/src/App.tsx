@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, CSSProperties } from 'react';
 import { Map, Marker, Polygon, Popup, TileLayer, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
 import Wkt from 'wicket';
@@ -65,9 +65,10 @@ function App({url} : any) {
     fetchData(url);
   }, [url]);
 
+  const styles : CSSProperties = { position: 'absolute', top: 0, bottom:'0', width: '100%' };
+
   return (
-    <div className="embed-responsive embed-responsive-16by9">
-      <Map bounds={bounds} center={center} zoom={11} className="embed-responsive-item" zoomControl={false}>
+      <Map bounds={bounds} center={center} zoom={11} scrollWheelZoom={false} touchZoom={false} style={styles}>
         <TileLayer
           url="https://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo4&zoom={z}&x={x}&y={y}"
           attribution="<a href='http://www.kartverket.no'>Kartverket</a>"
@@ -75,7 +76,6 @@ function App({url} : any) {
         {markers}
         <ZoomControl position="topright" />
       </Map>
-    </div>
   );
 }
 
