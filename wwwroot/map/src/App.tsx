@@ -1,5 +1,5 @@
 import React, { useEffect, useState, CSSProperties } from 'react';
-import { Map, Marker, Polygon, Popup, TileLayer, ZoomControl } from 'react-leaflet';
+import { FeatureGroup, Map, Marker, LayersControl, LayerGroup, Polygon, Popup, ScaleControl, TileLayer } from 'react-leaflet';
 import L from 'leaflet';
 import Wkt from 'wicket';
 
@@ -70,11 +70,37 @@ function App({url} : any) {
   return (
       <Map bounds={bounds} center={center} zoom={11} scrollWheelZoom={false} touchZoom={false} style={styles}>
         <TileLayer
-          url="https://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo4&zoom={z}&x={x}&y={y}"
-          attribution="<a href='http://www.kartverket.no'>Kartverket</a>"
+          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+          url="https://a.tile.openstreetmap.org/{z}/{x}/{y}.png "
         />
-        {markers}
-        <ZoomControl position="topright" />
+        <LayersControl position="topright">
+        <LayersControl.BaseLayer name="Topologisk Norgeskart" checked={true}>
+            <LayerGroup>
+              <TileLayer
+                url="https://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo4&zoom={z}&x={x}&y={y}"
+                attribution="<a href='http://www.kartverket.no'>Kartverket</a>"
+              />
+            </LayerGroup>
+          </LayersControl.BaseLayer>
+          <LayersControl.BaseLayer name="Topologisk Norgeskart med Europa">
+            <LayerGroup>
+              <TileLayer
+                url="https://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=europa&zoom={z}&x={x}&y={y}"
+                attribution="<a href='http://www.kartverket.no'>Kartverket</a>"
+              />
+              <TileLayer
+                url="https://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo4&zoom={z}&x={x}&y={y}"
+                attribution="<a href='http://www.kartverket.no'>Kartverket</a>"
+              />
+            </LayerGroup>
+          </LayersControl.BaseLayer>
+          <LayersControl.Overlay name="Resource" checked={true}>
+            <FeatureGroup>
+              {markers}
+            </FeatureGroup>
+          </LayersControl.Overlay>
+        </LayersControl>
+        <ScaleControl/>
       </Map>
   );
 }
