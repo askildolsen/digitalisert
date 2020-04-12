@@ -1,17 +1,7 @@
 import React, { useEffect, useState, CSSProperties } from 'react';
-import { FeatureGroup, Map, Marker, LayersControl, LayerGroup, Polygon, Popup, ScaleControl, TileLayer } from 'react-leaflet';
+import { FeatureGroup, Map, Marker, LayersControl, LayerGroup, Polygon, ScaleControl, TileLayer, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
 import Wkt from 'wicket';
-
-function ResourceCard({ resource } : any) {
-  return (
-    <a href={"Resource/" + resource.context + "/" + resource.resourceId}>
-      <small className="text-muted">{resource.code}</small>
-        <span> - </span>
-        {resource.title}
-    </a>
-  );
-}
 
 function App({url} : any) {
 
@@ -30,9 +20,7 @@ function App({url} : any) {
               if (wkt.type === "point") {
                 return [
                   <Marker key={rindex + "-" + pindex + "-" + vindex} position={[wkt.components[0].y, wkt.components[0].x]} icon={L.divIcon()}>
-                    <Popup key={"pop-" + rindex + "-" + pindex + "-" + vindex}>
-                      <ResourceCard resource={resource}/>
-                    </Popup>
+                    <Tooltip>{resource.title}</Tooltip>
                   </Marker>
                 ]
               } else {
@@ -41,9 +29,7 @@ function App({url} : any) {
                   : wkt.components[0].map((c: any) => { return [c.y, c.x] } );
                 return [
                   <Polygon key={rindex + "-" + pindex + "-" + vindex} positions={ polygonpositions }>
-                    <Popup key={"pop-" + rindex + "-" + pindex + "-" + vindex}>
-                      <ResourceCard resource={resource}/>
-                    </Popup>
+                    <Tooltip>{resource.title}</Tooltip>
                   </Polygon>
                 ]
               }
