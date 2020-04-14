@@ -1,19 +1,21 @@
 import React, { useEffect, useState, CSSProperties } from 'react';
-import { FeatureGroup, Map, Marker, LayersControl, LayerGroup, Polygon, ScaleControl, TileLayer, Tooltip } from 'react-leaflet';
+import { Map, MapLayer, Marker, LayersControl, LayerGroup, Polygon, ScaleControl, TileLayer, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
 import Wkt from 'wicket';
 
-function App({url} : any) {
+function App({resource, resources} : any) {
 
   const [bounds, setBounds] = useState<Array<[number, number]> | undefined>();
   const [center, setCenter] = useState();
-  const [markers, setMarkers] = useState();
+  const [primaryMapLayer, setPrimaryMapLayer] = useState<MapLayer[]>([]);
+  const [seondaryMapLayer, setSeondaryMapLayer] = useState<MapLayer[]>([]);
 
   useEffect(() => {
-    const fetchResourceData = async (url: string) => {
-      const resources = await (await fetch(url)).json();
-      const responsemarkers =
-        resources.flatMap((resource: any, rindex: Number) => {
+    const fetchResourceData = async (resources: string[], primary : boolean) => {
+      const resourceData = await Promise.all(resources.map(r => fetch("/api/Resource/" + r).then(r => r.json())));
+      const fillOpacity = (primary) ? 0.2 : 0.1;
+      const responsecomponents =
+        [].concat(...resourceData).flatMap((resource: any, rindex: Number) => {
           return resource.properties.filter((p: any) => p.tags.includes("@wkt")).flatMap((property: any, pindex: Number) => {
             return property.value.flatMap((value: string, vindex: Number) => {
               const wkt = new Wkt.Wkt().read(value);
@@ -28,7 +30,7 @@ function App({url} : any) {
                   ? wkt.components.map((co: any) => { return co.map((c: any) => { return [c.y, c.x] } ) })
                   : wkt.components[0].map((c: any) => { return [c.y, c.x] } );
                 return [
-                  <Polygon key={rindex + "-" + pindex + "-" + vindex} positions={ polygonpositions }>
+                  <Polygon key={rindex + "-" + pindex + "-" + vindex} positions={ polygonpositions } fillOpacity={fillOpacity}>
                     <Tooltip>{resource.title}</Tooltip>
                   </Polygon>
                 ]
@@ -37,19 +39,28 @@ function App({url} : any) {
           });
         });
 
-        const positions = [].concat(...responsemarkers.map((m: any) => (m.props.position) ? [m.props.position] : m.props.positions));
-        if (positions.length > 1 && positions.some((p1: any) => positions.some((p2: any) => p1.join('|') !== p2.join('|')))) {
-          setBounds(positions);
-        }
-        else {
-          setCenter(positions[0]);
-        }
+        if (primary) {
+          const positions = [].concat(...responsecomponents.map((m: any) => (m.props.position) ? [m.props.position] : m.props.positions));
+          if (positions.length > 1 && positions.some((p1: any) => positions.some((p2: any) => p1.join('|') !== p2.join('|')))) {
+            setBounds(positions);
+          }
+          else {
+            setCenter(positions[0]);
+          }
 
-        setMarkers(responsemarkers);
+          setPrimaryMapLayer(responsecomponents);
+        } else {
+          setSeondaryMapLayer(responsecomponents);
+        }
     }
 
-    fetchResourceData(url);
-  }, [url]);
+    if (resource) {
+      fetchResourceData( resources, false);
+      fetchResourceData( [resource], true);
+    } else {
+      fetchResourceData( resources, true);
+    }
+  }, [resource, resources]);
 
   const styles : CSSProperties = { position: 'absolute', top: 0, bottom:'0', width: '100%' };
 
@@ -60,7 +71,7 @@ function App({url} : any) {
           url="https://a.tile.openstreetmap.org/{z}/{x}/{y}.png "
         />
         <LayersControl position="topright">
-        <LayersControl.BaseLayer name="Topologisk Norgeskart" checked={true}>
+          <LayersControl.BaseLayer name="Topologisk Norgeskart" checked={true}>
             <LayerGroup>
               <TileLayer
                 url="https://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo4&zoom={z}&x={x}&y={y}"
@@ -80,12 +91,15 @@ function App({url} : any) {
               />
             </LayerGroup>
           </LayersControl.BaseLayer>
-          <LayersControl.Overlay name="Resource" checked={true}>
-            <FeatureGroup>
-              {markers}
-            </FeatureGroup>
-          </LayersControl.Overlay>
+          {seondaryMapLayer.length &&
+            <LayersControl.Overlay name="References" checked={false}>
+              <LayerGroup>
+                {seondaryMapLayer}
+              </LayerGroup>
+            </LayersControl.Overlay>
+          }
         </LayersControl>
+        {primaryMapLayer}
         <ScaleControl/>
       </Map>
   );
