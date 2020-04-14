@@ -56,7 +56,7 @@ namespace Digitalisert.Models
                             Tags = propertyG.SelectMany(p => p.Tags).Distinct(),
                             Resources =
                                 from propertyresource in propertyG.SelectMany(p => p.Resources)
-                                group propertyresource by new { propertyresource.Context, propertyresource.ResourceId } into propertyresourceG
+                                group propertyresource by new { Context = propertyresource.Context ?? resource.Context, ResourceId = propertyresource.ResourceId } into propertyresourceG
                                 let propertyresourcesource = LoadDocument<Resource>(propertyresourceG.SelectMany(r => r.Source).Where(s => !s.StartsWith("Resource")).Distinct()).Where(r => r != null)
                                 select new Resource {
                                     Context = propertyresourceG.Key.Context,
