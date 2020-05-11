@@ -4,6 +4,7 @@ using System.Linq;
 using Raven.Client.Documents;
 using Raven.Client.Documents.Indexes;
 using Raven.Client.Documents.Linq;
+using Raven.Client.Documents.Queries;
 using Raven.Client.Documents.Queries.Facets;
 using Raven.Client.Documents.Session;
 
@@ -223,17 +224,17 @@ namespace Digitalisert.Models
 
                 foreach(var title in (example.Title ?? new string[] { }).Where(v => !String.IsNullOrWhiteSpace(v)))
                 {
-                    query.Search("Title", title, Raven.Client.Documents.Queries.SearchOperator.And);
+                    query.Search("Title", title, SearchOperator.And);
                 }
 
                 foreach(var subTitle in (example.SubTitle ?? new string[] { }).Where(v => !String.IsNullOrWhiteSpace(v)))
                 {
-                    query.Search("SubTitle", subTitle, Raven.Client.Documents.Queries.SearchOperator.And);
+                    query.Search("SubTitle", subTitle, SearchOperator.And);
                 }
 
                 foreach(var body in (example.Body ?? new string[] { }).Where(v => !String.IsNullOrWhiteSpace(v)))
                 {
-                    query.Search("Body", body, Raven.Client.Documents.Queries.SearchOperator.And);
+                    query.Search("Body", body, SearchOperator.And);
                 }
 
                 query.CloseSubclause();
