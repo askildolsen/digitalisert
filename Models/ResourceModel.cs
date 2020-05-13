@@ -63,16 +63,17 @@ namespace Digitalisert.Models
                             Resources =
                                 from propertyresource in propertyG.SelectMany(p => p.Resources)
                                 group propertyresource by new { Context = propertyresource.Context ?? resource.Context, ResourceId = propertyresource.ResourceId } into propertyresourceG
-                                let propertyresourcesource = LoadDocument<Resource>(propertyresourceG.SelectMany(r => r.Source).Where(s => !s.StartsWith("Resource")).Distinct()).Where(r => r != null)
                                 let propertyresourcereduceoutputs = LoadDocument<ResourceReferences>("ResourceReferences/" + propertyresourceG.Key.Context + "/" + propertyresourceG.Key.ResourceId).ReduceOutputs
                                 let propertyresourceoutputs = LoadDocument<Resource>(propertyresourcereduceoutputs)
                                 select new Resource {
                                     Context = propertyresourceG.Key.Context,
                                     ResourceId = propertyresourceG.Key.ResourceId,
-                                    Type = propertyresourcesource.SelectMany(r => r.Type).Union(propertyresourceoutputs.SelectMany(r => r.Type)).Distinct(),
-                                    SubType = propertyresourcesource.SelectMany(r => r.SubType).Union(propertyresourceoutputs.SelectMany(r => r.SubType)).Distinct(),
-                                    Title = propertyresourcesource.SelectMany(r => r.Title).Union(propertyresourceoutputs.SelectMany(r => r.Title)).Distinct(),
-                                    Code = propertyresourcesource.SelectMany(r => r.Code).Union(propertyresourceoutputs.SelectMany(r => r.Code)).Distinct()
+                                    Type = propertyresourceoutputs.SelectMany(r => r.Type).Distinct(),
+                                    SubType = propertyresourceoutputs.SelectMany(r => r.SubType).Distinct(),
+                                    Title = propertyresourceoutputs.SelectMany(r => r.Title).Distinct(),
+                                    SubTitle = propertyresourceoutputs.SelectMany(r => r.SubTitle).Distinct(),
+                                    Code = propertyresourceoutputs.SelectMany(r => r.Code).Distinct(),
+                                    Status = propertyresourceoutputs.SelectMany(r => r.Status).Distinct(),
                                 }
                         }
                     select new Resource
