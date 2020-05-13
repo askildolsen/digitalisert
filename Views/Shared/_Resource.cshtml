@@ -2,23 +2,35 @@
 @model ResourceModel.Resource
 
 <h1>
-  <small>@Model.Code?.FirstOrDefault()</small>
+  @if (Model.Code.Any())
+  {
+    <small>@Model.Code.FirstOrDefault()</small>
+  }
   @Model.Title?.FirstOrDefault()
+  @if (Model.SubTitle.Any())
+  {
+    <small>@Model.SubTitle.FirstOrDefault()</small>
+  }
 </h1>
 
 @foreach (var type in Model.Type)
 {
-    <a href="/Home/Resource?resources[0].Type=@type" class="label primary">@type</a>
+    <a href="/Home/Resource?resources[0].Type=@type" class="button primary">@type</a>
 }
 
 @foreach (var subType in Model.SubType ?? new string[] { })
 {
-    <a href="/Home/Resource?resources[0].SubType=@subType" class="label secondary">@subType</a>
+    <a href="/Home/Resource?resources[0].SubType=@subType" class="button secondary">@subType</a>
 }
 
 @foreach (var tags in Model.Tags ?? new string[] { })
 {
-    <a href="/Home/Resource?resources[0].Tags=@tags" class="label">@tags</a>
+    <a href="/Home/Resource?resources[0].Tags=@tags" class="button">@tags</a>
+}
+
+@foreach (var status in Model.Status ?? new string[] { })
+{
+    <a href="/Home/Resource?resources[0].Status=@status" class="button">@status</a>
 }
 
 @foreach (var body in Model.Body ?? new string[] { })
@@ -56,13 +68,17 @@
             if (propertyresource.ResourceId != null)
             {
               <a href="/Home/Resource/@(propertyresource.Context)/@propertyresource.ResourceId">
-                <small>@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
+                <small class="subheader">@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
                 <span>@(propertyresource.Title.Union(propertyresource.Type).FirstOrDefault())</span>
+                @if (propertyresource.SubTitle.Any())
+                {
+                  <small class="subheader">@propertyresource.SubTitle.FirstOrDefault()</small>
+                }
               </a>
             }
             else
             {
-              <small>@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
+              <small class="subheader">@((propertyresource.Code ?? new string[] { }).FirstOrDefault())</small>
               <span>@((propertyresource.Title ?? new string[] { }).FirstOrDefault())</span>
             }
           }
