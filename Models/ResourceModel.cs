@@ -74,6 +74,7 @@ namespace Digitalisert.Models
                                     SubTitle = propertyresourceoutputs.SelectMany(r => r.SubTitle).Distinct(),
                                     Code = propertyresourceoutputs.SelectMany(r => r.Code).Distinct(),
                                     Status = propertyresourceoutputs.SelectMany(r => r.Status).Distinct(),
+                                    Tags = propertyresourceoutputs.SelectMany(r => r.Tags).Distinct()
                                 }
                         }
                     select new Resource
