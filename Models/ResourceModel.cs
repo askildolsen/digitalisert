@@ -86,7 +86,7 @@ namespace Digitalisert.Models
                         Title = source.SelectMany(r => r.Title).Union(resource.Title).Distinct(),
                         SubTitle = source.SelectMany(r => r.SubTitle).Union(resource.SubTitle).Distinct(),
                         Code = source.SelectMany(r => r.Code).Union(resource.Code).Distinct(),
-                        Body = source.SelectMany(r => r.Body).Union(properties.Where(p => p.Name == "@body").SelectMany(p => p.Value)).Select(v => ResourceFormat(v, resource)).Distinct(),
+                        Body = source.SelectMany(r => r.Body).Union(properties.Where(p => p.Name == "@body").SelectMany(p => p.Value)).SelectMany(v => ResourceFormat(v, resource)).Distinct(),
                         Status = source.SelectMany(r => r.Status).Union(resource.Status).Distinct(),
                         Tags = source.SelectMany(r => r.Tags).Union(resource.Tags).Distinct(),
                         Classification = source.SelectMany(r => r.Classification).Distinct(),

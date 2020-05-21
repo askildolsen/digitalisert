@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
 
 namespace Digitalisert.Models
 {
     public class ResourceModelUtils
     {
-        public static string ResourceFormat(string value, dynamic resource)
+        public static IEnumerable<string> ResourceFormat(string value, dynamic resource)
         {
             return Digitalisert.Raven.ResourceModelExtensions.ResourceFormat(value, resource);
         }
