@@ -163,14 +163,6 @@ namespace Digitalisert.Models
                     }
                 };
             }
-
-            public override IndexDefinition CreateIndexDefinition()
-            {
-                var indexDefinition = base.CreateIndexDefinition();
-                indexDefinition.Configuration = new IndexConfiguration { { "Indexing.MapTimeoutInSec", "60"} };
-
-                return indexDefinition;
-            }
         }
 
         public static List<Facet> Facets = new List<Facet>
