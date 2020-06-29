@@ -60,8 +60,13 @@ namespace Digitalisert.Models
                             Name = propertyG.Key,
                             Value = propertyG.SelectMany(p => p.Value).Distinct(),
                             Tags = propertyG.SelectMany(p => p.Tags).Distinct(),
-                            Resources =
+                            Resources = (
                                 from propertyresource in propertyG.SelectMany(p => p.Resources)
+                                where propertyresource.ResourceId == null
+                                select propertyresource
+                            ).Union(
+                                from propertyresource in propertyG.SelectMany(p => p.Resources)
+                                where propertyresource.ResourceId != null
                                 group propertyresource by new { Context = propertyresource.Context ?? resource.Context, ResourceId = propertyresource.ResourceId } into propertyresourceG
                                 let propertyresourcereduceoutputs = LoadDocument<ResourceReferences>("ResourceReferences/" + propertyresourceG.Key.Context + "/" + propertyresourceG.Key.ResourceId).ReduceOutputs
                                 let propertyresourceoutputs = LoadDocument<Resource>(propertyresourcereduceoutputs)
@@ -76,6 +81,7 @@ namespace Digitalisert.Models
                                     Status = propertyresourceoutputs.SelectMany(r => r.Status).Distinct(),
                                     Tags = propertyresourceoutputs.SelectMany(r => r.Tags).Distinct()
                                 }
+                            )
                         }
                     select new Resource
                     {
