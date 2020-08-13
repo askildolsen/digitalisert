@@ -1,4 +1,4 @@
-@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment HostingEnvironment
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment WebHostEnvironment
 @model IEnumerable<ResourceModel.Resource>
 
 @if (Model.Skip(1).Any())
@@ -21,11 +21,11 @@ else if (Model.Any())
 }
 
 @{
-    foreach(var fileInfo in new System.IO.DirectoryInfo(HostingEnvironment.WebRootPath + "/map/build/static/css").GetFiles("*.css"))
+    foreach(var fileInfo in new System.IO.DirectoryInfo(WebHostEnvironment.WebRootPath + "/map/build/static/css").GetFiles("*.css"))
     {
         <link rel="stylesheet" href="~/map/build/static/css/@(fileInfo.Name)" asp-append-version="true" />
     }
-    foreach(var fileInfo in new System.IO.DirectoryInfo(HostingEnvironment.WebRootPath + "/map/build/static/js").GetFiles("*.js"))
+    foreach(var fileInfo in new System.IO.DirectoryInfo(WebHostEnvironment.WebRootPath + "/map/build/static/js").GetFiles("*.js"))
     {
         <script src="~/map/build/static/js/@(fileInfo.Name)"></script>
     }
