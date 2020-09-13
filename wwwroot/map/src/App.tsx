@@ -1,5 +1,5 @@
 import React, { useEffect, useState, CSSProperties } from 'react';
-import { Map, MapLayer, Marker, LayersControl, LayerGroup, Polygon, ScaleControl, TileLayer, Tooltip } from 'react-leaflet';
+import { Map, MapLayer, Marker, LayersControl, LayerGroup, Polygon, Polyline, ScaleControl, TileLayer, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
 import Wkt from 'wicket';
 
@@ -24,6 +24,12 @@ function App({resource, resources} : any) {
                   <Marker key={rindex + "-" + pindex + "-" + vindex} position={[wkt.components[0].y, wkt.components[0].x]} icon={L.divIcon()}>
                     <Tooltip>{resource.title}</Tooltip>
                   </Marker>
+                ]
+              } else if (wkt.type === "linestring") {
+                return [
+                  <Polyline key={rindex + "-" + pindex + "-" + vindex} positions={ wkt.components.map((c : any) => { return [c.y, c.x] } ) }>
+                    <Tooltip>{resource.title}</Tooltip>
+                  </Polyline>
                 ]
               } else {
                 const polygonpositions = (wkt.components.length > 1)
@@ -100,7 +106,7 @@ function App({resource, resources} : any) {
           }
         </LayersControl>
         {primaryMapLayer}
-        <ScaleControl/>
+        <ScaleControl metric={true} imperial={false}/>
       </Map>
   );
 }
