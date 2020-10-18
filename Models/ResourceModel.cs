@@ -128,6 +128,18 @@ namespace Digitalisert.Models
                                     new CreateFieldOptions { Indexing = FieldIndexing.Exact }
                                 )
                             }
+                        ).Union(
+                            new object[] {
+                                CreateField(
+                                    "Search",
+                                    (
+                                        source.SelectMany(r => r.Title).Union(resource.Title)
+                                    ).Union(
+                                        source.SelectMany(r => r.Code).Union(resource.Code)
+                                    ).Distinct(),
+                                    new CreateFieldOptions { Indexing = FieldIndexing.Search, Storage = FieldStorage.Yes, TermVector = FieldTermVector.WithPositionsAndOffsets }
+                                )
+                            }
                         )
                     }
                 );

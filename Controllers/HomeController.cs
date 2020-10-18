@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Raven.Client.Documents;
+using Raven.Client.Documents.Queries;
 using Raven.Client.Documents.Queries.Facets;
 using Digitalisert.Models;
 
@@ -11,6 +12,8 @@ namespace Digitalisert.Controllers
 {
     public class HomeController : Controller
     {
+        [ViewData]
+        public string ResourceSearch { get; set; }
         [ViewData]
         public Dictionary<string, FacetResult> ResourceFacet { get; set; }
         private readonly IDocumentStore _store;
@@ -24,13 +27,19 @@ namespace Digitalisert.Controllers
             return View();
         }
 
-        public IActionResult Resource([FromQuery] Models.ResourceModel.Resource[] resources)
+        public IActionResult Resource([FromQuery] Models.ResourceModel.Resource[] resources = null, string search = null)
         {
             using(var session = _store.OpenSession())
             {
                 var query = session.Advanced.DocumentQuery<ResourceModel.Resource, ResourceModel.ResourceIndex>();
 
                 query = ResourceModel.QueryByExample(query, resources);
+
+                if (!String.IsNullOrWhiteSpace(search))
+                {
+                    query.Search("Search", search, @operator: SearchOperator.And);
+                    ResourceSearch = search;
+                }
 
                 var result = query.ToQueryable().ProjectInto<ResourceModel.Resource>().Take(100).ToList();
 

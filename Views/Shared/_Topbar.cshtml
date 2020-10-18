@@ -2,6 +2,10 @@
 @using Digitalisert.Models
 @model IEnumerable<ResourceModel.Resource>
 
+@{
+  string resourceSearch = ViewBag.ResourceSearch ?? "";
+}
+
 <div class="top-bar">
   <div class="top-bar-left">
     <ul class="dropdown menu" data-dropdown-menu>
@@ -41,4 +45,10 @@
       }
     </ul>
   </div>
+  <form class="top-bar-right" action="/Home/Resource">
+    <ul class="menu">
+      <li><input type="search" name="search" placeholder="Search..." value="@resourceSearch"></li>
+      <li><button type="submit" class="button">Search</button></li>
+    </ul>
+  </form>
 </div>
