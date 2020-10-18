@@ -2,6 +2,10 @@
 @using Digitalisert.Models
 @model IEnumerable<ResourceModel.Resource>
 
+@{
+  Dictionary<string, string[]> highlightings = ViewBag.ResourceSearchHighlightings;
+}
+
 <ul class="accordion" data-accordion>
   @foreach(var resource in Model)
   {
@@ -44,6 +48,16 @@
         @foreach (var body in resource.Body ?? new string[] { })
         {
           <p class="text-break">@body</p>
+        }
+
+        @if (highlightings.ContainsKey(resource.Id))
+        {
+          <small>
+            @foreach (var fragment in highlightings[resource.Id])
+            {
+              @Html.Raw(Markdig.Markdown.ToHtml(fragment));
+            }
+          </small>
         }
       </div>
     </li>

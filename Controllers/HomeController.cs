@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Raven.Client.Documents;
 using Raven.Client.Documents.Queries;
 using Raven.Client.Documents.Queries.Facets;
+using Raven.Client.Documents.Queries.Highlighting;
 using Digitalisert.Models;
 
 namespace Digitalisert.Controllers
@@ -14,6 +15,8 @@ namespace Digitalisert.Controllers
     {
         [ViewData]
         public string ResourceSearch { get; set; }
+        [ViewData]
+        public Dictionary<string, string[]> ResourceSearchHighlightings { get; set; }
         [ViewData]
         public Dictionary<string, FacetResult> ResourceFacet { get; set; }
         private readonly IDocumentStore _store;
@@ -34,15 +37,18 @@ namespace Digitalisert.Controllers
                 var query = session.Advanced.DocumentQuery<ResourceModel.Resource, ResourceModel.ResourceIndex>();
 
                 query = ResourceModel.QueryByExample(query, resources);
+                Highlightings highlightings = null;
 
                 if (!String.IsNullOrWhiteSpace(search))
                 {
+                    query.Highlight("Search", 128, 1, new HighlightingOptions { PreTags = new[] { "`" }, PostTags = new[] { "`" } }, out highlightings);
                     query.Search("Search", search, @operator: SearchOperator.And);
                     ResourceSearch = search;
                 }
 
                 var result = query.ToQueryable().ProjectInto<ResourceModel.Resource>().Take(100).ToList();
 
+                ResourceSearchHighlightings = (highlightings ?? new Highlightings("")).ResultIndents.ToDictionary(r => r, r => highlightings.GetFragments(r));
                 ResourceFacet = query.AggregateBy(ResourceModel.Facets).Execute();
 
                 return View(result);

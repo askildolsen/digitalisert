@@ -16,6 +16,7 @@ namespace Digitalisert.Models
         public class Resource
         {
             public Resource() { }
+            public string Id { get; set; }
             public string Context { get; set; }
             public string ResourceId { get; set; }
             public IEnumerable<string> Type { get; set; }
