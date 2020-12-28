@@ -82,6 +82,7 @@ namespace Digitalisert.Models
                                 }
                             )
                         }
+                    let body = source.SelectMany(r => r.Body ?? new string[] { }).Union(properties.Where(p => p.Name == "@body").SelectMany(p => p.Value).SelectMany(v => ResourceFormat(v, resource))).Distinct()
                     select new Resource
                     {
                         Context = resource.Context,
@@ -91,7 +92,7 @@ namespace Digitalisert.Models
                         Title = resource.Title,
                         SubTitle = resource.SubTitle,
                         Code = resource.Code,
-                        Body = source.SelectMany(r => r.Body).Union(properties.Where(p => p.Name == "@body").SelectMany(p => p.Value).SelectMany(v => ResourceFormat(v, resource))).Distinct(),
+                        Body = body,
                         Status = resource.Status,
                         Tags = resource.Tags,
                         Classification = source.SelectMany(r => r.Classification).Distinct(),
@@ -131,7 +132,7 @@ namespace Digitalisert.Models
                             new object[] {
                                 CreateField(
                                     "Search",
-                                    resource.Title.Union(resource.Code).Distinct(),
+                                    resource.Title.Union(resource.Code).Union(body).Distinct(),
                                     new CreateFieldOptions { Indexing = FieldIndexing.Search, Storage = FieldStorage.Yes, TermVector = FieldTermVector.WithPositionsAndOffsets }
                                 )
                             }
