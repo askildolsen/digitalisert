@@ -1,14 +1,12 @@
 import React, { useEffect, useState, CSSProperties } from 'react';
-import { Map, MapLayer, Marker, LayersControl, LayerGroup, Polygon, Polyline, ScaleControl, TileLayer, Tooltip } from 'react-leaflet';
+import { MapContainer, Marker, LayersControl, LayerGroup, Polygon, Polyline, ScaleControl, TileLayer, Tooltip, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import Wkt from 'wicket';
 
-function App({resource, resources} : any) {
-
-  const [bounds, setBounds] = useState<Array<[number, number]> | undefined>();
-  const [center, setCenter] = useState();
-  const [primaryMapLayer, setPrimaryMapLayer] = useState<MapLayer[]>([]);
-  const [seondaryMapLayer, setSeondaryMapLayer] = useState<MapLayer[]>([]);
+function MapContent({resource, resources} : any) {
+  const [primaryMapLayer, setPrimaryMapLayer] = useState<any[]>([]);
+  const [seondaryMapLayer, setSeondaryMapLayer] = useState<any[]>([]);
+  const map = useMap();
 
   useEffect(() => {
     const fetchResourceData = async (resources: string[], primary : boolean) => {
@@ -48,10 +46,10 @@ function App({resource, resources} : any) {
         if (primary) {
           const positions = [].concat(...responsecomponents.map((m: any) => (m.props.position) ? [m.props.position] : m.props.positions));
           if (positions.length > 1 && positions.some((p1: any) => positions.some((p2: any) => p1.join('|') !== p2.join('|')))) {
-            setBounds(positions);
+            map.fitBounds(positions);
           }
           else {
-            setCenter(positions[0]);
+            map.setView(positions[0], map.getZoom());
           }
 
           setPrimaryMapLayer(responsecomponents);
@@ -66,12 +64,10 @@ function App({resource, resources} : any) {
     } else {
       fetchResourceData( resources, true);
     }
-  }, [resource, resources]);
-
-  const styles : CSSProperties = { position: 'absolute', top: 0, bottom:'0', width: '100%' };
+  }, [resource, resources, map]);
 
   return (
-      <Map bounds={bounds} center={center} zoom={11} scrollWheelZoom={false} touchZoom={false} style={styles}>
+      <>
         <TileLayer
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           url="https://a.tile.openstreetmap.org/{z}/{x}/{y}.png "
@@ -107,7 +103,18 @@ function App({resource, resources} : any) {
         </LayersControl>
         {primaryMapLayer}
         <ScaleControl metric={true} imperial={false}/>
-      </Map>
+      </>
+  );
+}
+
+function App({resource, resources} : any) {
+  const styles : CSSProperties = { position: 'absolute', top: 0, bottom:'0', width: '100%' };
+
+  return (
+      <MapContainer zoom={11} scrollWheelZoom={false} touchZoom={false} style={styles}>
+        <MapContent resource={resource} resources={resources}/>
+        <ScaleControl metric={true} imperial={false}/>
+      </MapContainer>
   );
 }
 
