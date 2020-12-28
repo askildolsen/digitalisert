@@ -1,6 +1,7 @@
 [Bb]in.tmp
 [Oo]bj.tmp
 .vscode/*
+package-lock.json
 node_modules*
 build*
 .DS_Store
