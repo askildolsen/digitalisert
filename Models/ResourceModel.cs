@@ -55,25 +55,23 @@ namespace Digitalisert.Models
                     from resource in resources
                     let source = LoadDocument<Resource>(resource.Source.Where(s => !s.StartsWith("Resource")).Distinct()).Where(r => r != null)
                     let properties = 
-                        from property in resource.Properties.Union(source.SelectMany(s => s.Properties))
-                        group property by property.Name into propertyG
+                        from property in resource.Properties
                         select new Property {
-                            Name = propertyG.Key,
-                            Value = propertyG.SelectMany(p => p.Value).Distinct(),
-                            Tags = propertyG.SelectMany(p => p.Tags).Distinct(),
+                            Name = property.Name,
+                            Value = property.Value,
+                            Tags = property.Tags,
                             Resources = (
-                                from propertyresource in propertyG.SelectMany(p => p.Resources)
+                                from propertyresource in property.Resources
                                 where propertyresource.ResourceId == null
                                 select propertyresource
                             ).Union(
-                                from propertyresource in propertyG.SelectMany(p => p.Resources)
+                                from propertyresource in property.Resources
                                 where propertyresource.ResourceId != null
-                                group propertyresource by new { Context = propertyresource.Context ?? resource.Context, ResourceId = propertyresource.ResourceId } into propertyresourceG
-                                let propertyresourcereduceoutputs = LoadDocument<ResourceReferences>("ResourceReferences/" + propertyresourceG.Key.Context + "/" + propertyresourceG.Key.ResourceId).ReduceOutputs
+                                let propertyresourcereduceoutputs = LoadDocument<ResourceReferences>("ResourceReferences/" + propertyresource.Context + "/" + propertyresource.ResourceId).ReduceOutputs
                                 let propertyresourceoutputs = LoadDocument<Resource>(propertyresourcereduceoutputs)
                                 select new Resource {
-                                    Context = propertyresourceG.Key.Context,
-                                    ResourceId = propertyresourceG.Key.ResourceId,
+                                    Context = propertyresource.Context,
+                                    ResourceId = propertyresource.ResourceId,
                                     Type = propertyresourceoutputs.SelectMany(r => r.Type).Distinct(),
                                     SubType = propertyresourceoutputs.SelectMany(r => r.SubType).Distinct(),
                                     Title = propertyresourceoutputs.SelectMany(r => r.Title).Distinct(),
@@ -88,14 +86,14 @@ namespace Digitalisert.Models
                     {
                         Context = resource.Context,
                         ResourceId = resource.ResourceId,
-                        Type = source.SelectMany(r => r.Type).Union(resource.Type).Distinct(),
-                        SubType = source.SelectMany(r => r.SubType).Union(resource.SubType).Distinct(),
-                        Title = source.SelectMany(r => r.Title).Union(resource.Title).Distinct(),
-                        SubTitle = source.SelectMany(r => r.SubTitle).Union(resource.SubTitle).Distinct(),
-                        Code = source.SelectMany(r => r.Code).Union(resource.Code).Distinct(),
-                        Body = source.SelectMany(r => r.Body).Union(properties.Where(p => p.Name == "@body").SelectMany(p => p.Value)).SelectMany(v => ResourceFormat(v, resource)).Distinct(),
-                        Status = source.SelectMany(r => r.Status).Union(resource.Status).Distinct(),
-                        Tags = source.SelectMany(r => r.Tags).Union(resource.Tags).Distinct(),
+                        Type = resource.Type,
+                        SubType = resource.SubType,
+                        Title = resource.Title,
+                        SubTitle = resource.SubTitle,
+                        Code = resource.Code,
+                        Body = source.SelectMany(r => r.Body).Union(properties.Where(p => p.Name == "@body").SelectMany(p => p.Value).SelectMany(v => ResourceFormat(v, resource))).Distinct(),
+                        Status = resource.Status,
+                        Tags = resource.Tags,
                         Classification = source.SelectMany(r => r.Classification).Distinct(),
                         Properties = properties.Where(p => !p.Name.StartsWith("@")),
                         _ = (
@@ -133,11 +131,7 @@ namespace Digitalisert.Models
                             new object[] {
                                 CreateField(
                                     "Search",
-                                    (
-                                        source.SelectMany(r => r.Title).Union(resource.Title)
-                                    ).Union(
-                                        source.SelectMany(r => r.Code).Union(resource.Code)
-                                    ).Distinct(),
+                                    resource.Title.Union(resource.Code).Distinct(),
                                     new CreateFieldOptions { Indexing = FieldIndexing.Search, Storage = FieldStorage.Yes, TermVector = FieldTermVector.WithPositionsAndOffsets }
                                 )
                             }
