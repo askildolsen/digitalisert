@@ -102,7 +102,6 @@ function MapContent({resource, resources} : any) {
           }
         </LayersControl>
         {primaryMapLayer}
-        <ScaleControl metric={true} imperial={false}/>
       </>
   );
 }
