@@ -43,6 +43,8 @@ namespace Digitalisert.Models
             public IEnumerable<string> Source { get; set; }
         }
 
+        public class ResourceMapping : Resource { }
+
         public class ResourceReferences {
             public string[] ReduceOutputs { get; set; }
         }
@@ -53,7 +55,7 @@ namespace Digitalisert.Models
             {
                 AddMap<Resource>(resources =>
                     from resource in resources
-                    let source = LoadDocument<Resource>(resource.Source.Where(s => !s.StartsWith("Resource")).Distinct()).Where(r => r != null)
+                    let source = LoadDocument<ResourceMapping>(resource.Source).Where(r => r != null)
                     let properties = 
                         from property in resource.Properties
                         select new Property {
@@ -132,7 +134,7 @@ namespace Digitalisert.Models
                             new object[] {
                                 CreateField(
                                     "Search",
-                                    resource.Title.Union(resource.Code).Union(body).Distinct(),
+                                    resource.Title.Union(resource.SubTitle).Union(resource.Code).Union(body).Distinct(),
                                     new CreateFieldOptions { Indexing = FieldIndexing.Search, Storage = FieldStorage.Yes, TermVector = FieldTermVector.WithPositionsAndOffsets }
                                 )
                             }
