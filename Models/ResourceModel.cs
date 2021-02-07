@@ -125,6 +125,13 @@ namespace Digitalisert.Models
                         ).Union(
                             new object[] {
                                 CreateField(
+                                    "@resources",
+                                    properties.SelectMany(p => p.Resources).Select(r => r.Context + "/" + r.ResourceId).Distinct()
+                                )
+                            }
+                        ).Union(
+                            new object[] {
+                                CreateField(
                                     "Properties",
                                     properties.Select(p => p.Name).Where(n => !n.StartsWith("@")).Distinct(),
                                     new CreateFieldOptions { Indexing = FieldIndexing.Exact }

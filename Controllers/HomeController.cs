@@ -56,18 +56,26 @@ namespace Digitalisert.Controllers
         }
 
         [Route("Home/Resource/{context}/{*id}")]
-        public IActionResult Resource(string context, string id)
+        public IActionResult Resource(string context, string id, [FromQuery] Models.ResourceModel.Resource[] resources = null)
         {
             using(var session = _store.OpenSession())
             {
-                var query = session
+                var resource = session
                     .Query<ResourceModel.Resource, ResourceModel.ResourceIndex>()
                     .Include<ResourceModel.Resource>(r => r.Properties.SelectMany(p => p.Resources).SelectMany(re => re.Source))
-                    .Where(r => r.Context == context && r.ResourceId == id);
+                    .Where(r => r.Context == context && r.ResourceId == id).ProjectInto<ResourceModel.Resource>().ToList();
 
-                ResourceFacet = session.Query<ResourceModel.Resource, ResourceModel.ResourceIndex>().AggregateBy(ResourceModel.Facets).Execute();
+                var query = session.Advanced.DocumentQuery<ResourceModel.Resource, ResourceModel.ResourceIndex>();
+                Highlightings highlightings = null;
 
-                return View(query.ProjectInto<ResourceModel.Resource>().ToList());
+                query = ResourceModel.QueryByExample(query, resources);
+                query.WhereEquals("@resources", context + "/" + id);
+                var result = (resources.Any()) ? query.ToQueryable().ProjectInto<ResourceModel.Resource>().Take(100).ToList() : new List<ResourceModel.Resource>();
+
+                ResourceSearchHighlightings = (highlightings ?? new Highlightings("")).ResultIndents.ToDictionary(r => r, r => highlightings.GetFragments(r));
+                ResourceFacet = query.AggregateBy(ResourceModel.Facets).Execute();
+
+                return View((resources.Any()) ? result : resource);
             }
         }
 
