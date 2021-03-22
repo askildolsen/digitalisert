@@ -104,7 +104,7 @@ namespace Digitalisert.Models
                             group property by property.Name into propertyG
                             select CreateField(
                                 propertyG.Key,
-                                propertyG.SelectMany(p => p.Value).Union(
+                                propertyG.Where(p => !p.Tags.Contains("@wkt")).SelectMany(p => p.Value).Union(
                                     from propertyresource in propertyG.SelectMany(p => p.Resources)
                                     from fieldvalue in new[] { propertyresource.ResourceId }.Union(propertyresource.Code).Union(propertyresource.Title)
                                     select fieldvalue
