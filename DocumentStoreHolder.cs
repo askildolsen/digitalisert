@@ -15,7 +15,7 @@ public class DocumentStoreHolder
 			Database = "Digitalisert",
 		};
 
-		store.Conventions.FindCollectionName = t => t.Name;
+		store.Conventions.FindCollectionName = t => t.Name.Replace("References", "/References");
 
 		return store.Initialize();
 	}
